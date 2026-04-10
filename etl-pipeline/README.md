@@ -2,30 +2,29 @@
 
 ## Proposta
 
-Este projeto implementa um pipeline **ETL (Extract, Transform, Load)** para coletar dados de contratações públicas com recebimento de propostas abertas disponibilizados pela API pública do **Portal Nacional de Contratações Públicas (PNCP)**, tratá-los e persistí-los no **MongoDB Atlas** para análises posteriores.
+Este projeto implementa um pipeline **ETL (Extract, Transform, Load)** para coletar dados de contratações públicas com recebimento de propostas abertas disponibilizados pela API pública do **Portal Nacional de Contratações Públicas (PNCP)**, tratar esses dados e persistir os documentos no **MongoDB Atlas**.
 
 ---
 
 ## Arquitetura da Solução
 
-O projeto segue o padrão de **Orientação a Objetos** com separação clara de responsabilidades em camadas:
+O projeto segue separação clara de responsabilidades em camadas e usa `main.py` como ponto de entrada:
 
 ```
-pncp_etl/
+etl-pipeline/
 ├── config/
 │   ├── __init__.py
-│   └── settings.py          # Configurações via variáveis de ambiente
+│   └── settings.py          
 ├── src/
 │   ├── __init__.py
-│   ├── extractor.py         # Camada Extract — requisições HTTP paginadas
-│   ├── transformer.py       # Camada Transform — limpeza e normalização
-│   ├── loader.py            # Camada Load — persistência no MongoDB Atlas
-│   └── pipeline.py          # Orquestrador ETL
-├── .env.example             # Template de variáveis de ambiente
-├── .gitignore
-├── main.py                  # Ponto de entrada da aplicação
-├── requirements.txt
-└── README.md
+│   ├── extractor.py        
+│   ├── transformer.py      
+│   ├── loader.py            
+│   └── pipeline.py         
+├── .env.example             
+├── main.py                  
+├── requirements.txt         
+└── README.md               
 ```
 
 ### Componentes principais
@@ -74,7 +73,7 @@ pncp_etl/
 
 ### Etapas do fluxo
 
-1. **Extract** — `PNCPExtractor` realiza requisições `GET` ao endpoint `/v1/contratacoes/proposta` com paginação automática. Suporta filtros por `dataFinal`, `uf`, `codigoModalidadeContratacao`, `cnpj`, `codigoMunicipioIbge` e `codigoUnidadeAdministrativa`. Em caso de falha transitória (5xx), executa retentativas com backoff exponencial.
+1. **Extract** — `PNCPExtractor` realiza requisições `GET` ao endpoint `/v1/contratacoes/proposta` com paginação automática. Suporta filtros por `dataFinal`, `dataInicial`, `uf`, `codigoModalidadeContratacao`, `cnpj`, `codigoMunicipioIbge` e `codigoUnidadeAdministrativa`.
 
 2. **Transform** — `PNCPTransformer` processa cada registro:
    - Converte strings de data para objetos `datetime` com fuso UTC.
@@ -95,26 +94,28 @@ pncp_etl/
 
 ---
 
-## Forma de Execução
+## Como Executar
 
-### 1. Clone o repositório e instale as dependências
+### 1. Instale as dependências
 
-```bash
-cd pncp_etl
+```powershell
+cd etl-pipeline
 pip install -r requirements.txt
 ```
+
+> Em sistemas Unix, use `cd etl-pipeline` e `cp .env.example .env`.
 
 ### 2. Configure as variáveis de ambiente
 
 Copie o arquivo de exemplo e preencha com suas credenciais:
 
-```bash
-cp .env.example .env
+```powershell
+copy .env.example .env
 ```
 
-Edite o `.env` e substitua a `MONGODB_URI` pela sua connection string do Atlas:
+Edite o arquivo `.env` e configure:
 
-```
+```env
 MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/?retryWrites=true&w=majority
 MONGODB_DATABASE=pncp
 MONGODB_COLLECTION=contratacoes_proposta
@@ -122,47 +123,30 @@ MONGODB_COLLECTION=contratacoes_proposta
 
 ### 3. Execute o pipeline
 
-**Execução padrão** (todas as propostas com data final até 30/04/2026):
-```bash
+```powershell
 python main.py
 ```
 
-**Filtrado por UF:**
-```bash
+### Exemplos de uso
+
+```powershell
 python main.py --uf pe
-```
-
-**Filtrado por UF e modalidade:**
-```bash
 python main.py --uf pe --modalidade 8
-```
-
-**Com intervalo de datas:**
-```bash
 python main.py --data-inicial 20260401 --data-final 20260409 --uf sp
-```
-
-**Filtrado por CNPJ do órgão:**
-```bash
 python main.py --cnpj 87613659000100
 ```
 
-### 4. Argumentos disponíveis
+### Argumentos disponíveis
 
 | Argumento | Tipo | Descrição |
 |---|---|---|
-| `--data-final` | `YYYYMMDD` | Data final (padrão: `20260430`) |
-| `--data-inicial` | `YYYYMMDD` | Data inicial (opcional) |
+| `--data-final` | `YYYYMMDD` | Data final de encerramento de propostas (padrão: `20260430`) |
+| `--data-inicial` | `YYYYMMDD` | Data inicial de encerramento de propostas (opcional) |
 | `--uf` | string | Sigla da UF (ex: `pe`, `sp`) |
 | `--modalidade` | inteiro | Código da modalidade de contratação |
-| `--cnpj` | string | CNPJ do órgão (somente números) |
+| `--cnpj` | string | CNPJ do órgão contratante |
 | `--municipio-ibge` | string | Código IBGE do município |
 
 ---
 
-## Segurança
 
-- Credenciais **nunca** são hard-coded; são carregadas exclusivamente de variáveis de ambiente.
-- O arquivo `.env` está no `.gitignore` e **não deve ser versionado**.
-- A `MONGODB_URI` **não é logada** em nenhum momento.
-- Operações de banco usam `upsert` — sem risco de corrupção por execuções duplicadas.
