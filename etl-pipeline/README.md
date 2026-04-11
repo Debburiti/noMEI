@@ -9,13 +9,14 @@ Este projeto implementa um pipeline **ETL (Extract, Transform, Load)** para cole
 
 Este projeto foi desenvolvido pelos seguintes integrantes:
 
-Débora Buriti
-Giulliano Muniz
-Gustavo Lino
-Italo Artur
-Myllena Lins
-Mirella Santana
-Pedro Fernandes
+- Débora Buriti  
+- Luiz Facunde  
+- Giulliano Muniz  
+- Gustavo Lino  
+- Italo Artur  
+- Myllena Cristiane  
+- Mirella Emilly  
+- Pedro Fernandes  
 
 ## Arquitetura da Solução
 
