@@ -4,7 +4,18 @@
 
 Este projeto implementa um pipeline **ETL (Extract, Transform, Load)** para coletar dados de contratações públicas com recebimento de propostas abertas disponibilizados pela API pública do **Portal Nacional de Contratações Públicas (PNCP)**, tratar esses dados e persistir os documentos no **MongoDB Atlas**.
 
----
+
+## Colaboradores
+
+Este projeto foi desenvolvido pelos seguintes integrantes:
+
+Débora Buriti
+Giulliano Muniz
+Gustavo Lino
+Italo Artur
+Myllena Lins
+Mirella Santana
+Pedro Fernandes
 
 ## Arquitetura da Solução
 
