@@ -1,6 +1,7 @@
 from typing import Any
 
 from bson import ObjectId
+from bson.errors import InvalidId
 
 from app.core.database import get_database
 
@@ -16,7 +17,7 @@ class PerfilRepository:
             if doc:
                 doc["_id"] = str(doc["_id"])
             return doc
-        except Exception:
+        except InvalidId:
             return None
 
     async def get_by_cnpj(self, cnpj: str) -> dict[Any, Any] | None:
