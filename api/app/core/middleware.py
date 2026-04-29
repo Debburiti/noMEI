@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.core.context import set_current_ip
 
-logger = logging.getLogger("demand_manager")
+logger = logging.getLogger("nomei_api")
 
 
 def register_middlewares(app: FastAPI) -> None:

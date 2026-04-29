@@ -1,7 +1,7 @@
 [project]
-name = "demand-manager"
+name = "nomei-api"
 version = "0.1.0"
-description = "Sistema de gestão de demandas estilo Trello"
+description = "API Backend para o app do MEI — consulta de contratações públicas via PNCP"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.0",       # inclui uvicorn, multipart, email-validator
