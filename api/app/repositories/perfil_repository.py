@@ -6,8 +6,9 @@ from app.core.database import get_database
 
 
 class PerfilRepository:
-    def __init__(self):
-        self.collection = get_database()["perfis_mei"]
+    @property
+    def collection(self):
+        return get_database()["perfis_mei"]
 
     async def get_by_id(self, id: str) -> dict[Any, Any] | None:
         try:

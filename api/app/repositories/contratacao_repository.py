@@ -4,8 +4,9 @@ from app.core.database import get_database
 
 
 class ContratacaoRepository:
-    def __init__(self):
-        self.collection = get_database()["contratacoes_proposta"]
+    @property
+    def collection(self):
+        return get_database()["contratacoes_proposta"]
 
     async def find_all(
         self,
