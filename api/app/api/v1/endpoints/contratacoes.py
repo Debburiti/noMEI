@@ -1,6 +1,7 @@
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 
+from app.core.exceptions import NotFoundError
 from app.schemas.contratacao import ContratacaoListResponse, ContratacaoResponse
 from app.services.contratacao_service import ContratacaoService
 
@@ -35,5 +36,5 @@ async def obter_contratacao(numeroControlePNCP: str):
     """
     contratacao = await service.obter_contratacao(numeroControlePNCP)
     if not contratacao:
-        raise HTTPException(status_code=404, detail="Contratação não encontrada")
+        raise NotFoundError("Contratação não encontrada")
     return contratacao

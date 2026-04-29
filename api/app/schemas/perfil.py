@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PerfilBase(BaseModel):
@@ -14,7 +14,6 @@ class PerfilCreate(PerfilBase):
     pass
 
 class PerfilResponse(PerfilBase):
-    id: str = Field(..., alias="_id")
+    model_config = ConfigDict(populate_by_name=True)
 
-    class Config:
-        populate_by_name = True
+    id: str = Field(..., alias="_id")
