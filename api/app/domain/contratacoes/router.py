@@ -1,9 +1,8 @@
-
 from fastapi import APIRouter, Query
 
 from app.core.exceptions import NotFoundError
-from app.schemas.contratacao import ContratacaoListResponse, ContratacaoResponse
-from app.services.contratacao_service import ContratacaoService
+from app.domain.contratacoes.schemas import ContratacaoListResponse, ContratacaoResponse
+from app.domain.contratacoes.service import ContratacaoService
 
 router = APIRouter()
 service = ContratacaoService()

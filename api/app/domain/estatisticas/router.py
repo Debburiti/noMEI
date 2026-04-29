@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.schemas.estatistica import EstatisticasResponse
-from app.services.contratacao_service import ContratacaoService
+from app.domain.contratacoes.service import ContratacaoService
+from app.domain.estatisticas.schemas import EstatisticasResponse
 
 router = APIRouter()
 service = ContratacaoService()

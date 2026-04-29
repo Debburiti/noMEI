@@ -15,7 +15,6 @@ class ContratacaoBase(BaseModel):
     modalidadeNome: str | None = None
     meiCompativel: bool = False
     motivoIncompatibilidade: str | None = None
-    # Adicionar outros campos da integração conforme necessário
 
 class ContratacaoResponse(ContratacaoBase):
     pass

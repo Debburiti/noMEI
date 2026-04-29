@@ -1,6 +1,6 @@
 from typing import Any
 
-from app.repositories.perfil_repository import PerfilRepository
+from app.domain.perfil.repository import PerfilRepository
 
 
 class PerfilService:

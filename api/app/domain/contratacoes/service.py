@@ -1,7 +1,7 @@
 import math
 from typing import Any
 
-from app.repositories.contratacao_repository import ContratacaoRepository
+from app.domain.contratacoes.repository import ContratacaoRepository
 
 
 class ContratacaoService:

@@ -20,13 +20,13 @@ class ContratacaoRepository:
 
         query = {}
         if uf:
-            query["unidadeOrçamentaria.ufSigla"] = uf # Ajustar baseado na estrutura real
+            query["unidadeOrçamentaria.ufSigla"] = uf
         if modalidade_id is not None:
             query["modalidadeId"] = modalidade_id
         if valor_max is not None:
             query["valorTotalEstimado"] = {"$lte": valor_max}
         if mei_compativel is not None:
-            query["_mei_compativel"] = mei_compativel # Campo enriquecido ETL
+            query["_mei_compativel"] = mei_compativel
 
         cursor = self.collection.find(query).sort("dataEncerramentoProposta", 1).skip(skip).limit(limit)
         items = await cursor.to_list(length=limit)

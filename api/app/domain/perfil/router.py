@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
-from app.schemas.perfil import PerfilCreate, PerfilResponse
-from app.services.perfil_service import PerfilService
+from app.core.exceptions import NotFoundError
+from app.domain.perfil.schemas import PerfilCreate, PerfilResponse
+from app.domain.perfil.service import PerfilService
 
 router = APIRouter()
 service = PerfilService()
@@ -20,5 +21,5 @@ async def obter_perfil(id: str):
     """
     perfil = await service.obter_perfil(id)
     if not perfil:
-        raise HTTPException(status_code=404, detail="Perfil não encontrado")
+        raise NotFoundError("Perfil não encontrado")
     return perfil
