@@ -9,6 +9,7 @@ service = ContratacaoService()
 
 @router.get("/", response_model=ContratacaoListResponse)
 async def listar_contratacoes(
+    busca: str | None = Query(None, description="Busca por texto no objeto da compra"),
     uf: str | None = Query(None, description="Filtrar por UF"),
     modalidadeId: int | None = Query(None, description="Filtrar por ID da modalidade"),
     valorMax: float | None = Query(None, description="Valor máximo estimado"),
@@ -22,6 +23,7 @@ async def listar_contratacoes(
     return await service.listar_contratacoes(
         page=page,
         limit=limit,
+        busca=busca,
         uf=uf,
         modalidade_id=modalidadeId,
         valor_max=valorMax,
