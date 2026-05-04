@@ -27,10 +27,10 @@ TAGS_METADATA = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.getLogger("noMEI_api").info("🚀 Iniciando conexão com MongoDB...")
+    logging.getLogger("noMEI_api").info("Iniciando conexão com MongoDB...")
     await connect_to_mongo()
     yield
-    logging.getLogger("noMEI_api").info("🛑 Encerrando conexão com MongoDB...")
+    logging.getLogger("noMEI_api").info(" Encerrando conexão com MongoDB...")
     await close_mongo_connection()
 
 def create_app() -> FastAPI:

@@ -7,6 +7,10 @@ from app.domain.perfil.repository import PerfilRepository
 _MEI_VALOR_LIMITE = 144_900.0
 
 
+def _fmt_brl(valor: float) -> str:
+    return f"R${valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 class QualificacaoService:
     def __init__(self):
         self.contratacao_repo = ContratacaoRepository()
@@ -44,12 +48,12 @@ class QualificacaoService:
             return {
                 "item": "Valor dentro do limite MEI",
                 "elegivel": True,
-                "detalhe": f"Valor R${valor:,.2f} está dentro do limite anual do MEI (R$144.900,00).",
+                "detalhe": f"Valor {_fmt_brl(valor)} está dentro do limite anual do MEI (R$144.900,00).",
             }
         return {
             "item": "Valor dentro do limite MEI",
             "elegivel": False,
-            "detalhe": f"Valor R${valor:,.2f} excede o limite anual do MEI (R$144.900,00).",
+            "detalhe": f"Valor {_fmt_brl(valor)} excede o limite anual do MEI (R$144.900,00).",
         }
 
     def _verificar_cnae(self, perfil: dict[str, Any] | None) -> dict[str, Any]:

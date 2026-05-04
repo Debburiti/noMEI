@@ -43,7 +43,11 @@ class ContratacaoResponse(BaseModel):
         if isinstance(encerramento, datetime):
             data["deadline"] = encerramento.strftime("%d/%m")
         elif isinstance(encerramento, str):
-            data["deadline"] = encerramento[:5]
+            try:
+                dt = datetime.fromisoformat(encerramento.replace("Z", "+00:00"))
+                data["deadline"] = dt.strftime("%d/%m")
+            except ValueError:
+                data["deadline"] = None
 
         data["compatibility"] = 100 if data.get("_mei_compativel") else 0
 
