@@ -17,9 +17,10 @@ logging.basicConfig(
 
 TAGS_METADATA = [
     {"name": "Health", "description": "Status da aplicação"},
-    {"name": "Contratações", "description": "Visualização de contratações do PNCP (US-09, US-10)"},
+    {"name": "Contratações", "description": "Listagem e detalhe de licitações do PNCP (US-09, US-10)"},
     {"name": "Estatísticas", "description": "Painel de estatísticas para o MEI (US-11)"},
     {"name": "Perfil do MEI", "description": "Gestão de perfil e preferências (US-12)"},
+    {"name": "Alertas", "description": "Alertas e notificações do MEI (Sprint 3)"},
 ]
 
 @asynccontextmanager
