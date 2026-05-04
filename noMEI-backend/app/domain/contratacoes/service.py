@@ -17,6 +17,7 @@ class ContratacaoService:
         valor_max: float | None = None,
         mei_compativel: bool | None = None,
         busca: str | None = None,
+        cnae: str | None = None,
     ) -> dict[str, Any]:
 
         skip = (page - 1) * limit
@@ -28,6 +29,7 @@ class ContratacaoService:
             valor_max=valor_max,
             mei_compativel=mei_compativel,
             busca=busca,
+            cnae=cnae,
         )
 
         pages = math.ceil(total / limit) if limit > 0 else 0

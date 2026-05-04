@@ -17,6 +17,7 @@ class ContratacaoRepository:
         valor_max: float | None = None,
         mei_compativel: bool | None = None,
         busca: str | None = None,
+        cnae: str | None = None,
     ) -> tuple[list[dict[Any, Any]], int]:
 
         query = {}
@@ -30,6 +31,8 @@ class ContratacaoRepository:
             query["valorTotalEstimado"] = {"$lte": valor_max}
         if mei_compativel is not None:
             query["_mei_compativel"] = mei_compativel
+        if cnae is not None:
+            query["cnae_codes"] = cnae
 
         cursor = self.collection.find(query).sort("dataEncerramentoProposta", 1).skip(skip).limit(limit)
         items = await cursor.to_list(length=limit)
