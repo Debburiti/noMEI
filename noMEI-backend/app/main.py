@@ -22,6 +22,7 @@ TAGS_METADATA = [
     {"name": "Estatísticas", "description": "Painel de estatísticas para o MEI (US-11)"},
     {"name": "Perfil do MEI", "description": "Gestão de perfil e preferências (US-12)"},
     {"name": "Alertas", "description": "Alertas e notificações do MEI (Sprint 3)"},
+    {"name": "Qualificação", "description": "Checklist de elegibilidade do MEI para licitações"},
 ]
 
 @asynccontextmanager
