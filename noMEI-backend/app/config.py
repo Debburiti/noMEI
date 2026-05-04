@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # Database
     mongodb_url: str = "mongodb://localhost:27017"
-    mongodb_db_name: str = "nomei_db"
+    mongodb_db_name: str = "pncp"
 
     # CORS
     cors_origins: list[str] = ["http://localhost:3000"]
