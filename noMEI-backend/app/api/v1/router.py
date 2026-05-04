@@ -6,6 +6,6 @@ from app.domain.perfil.router import router as perfil_router
 
 router = APIRouter()
 
-router.include_router(contratacoes_router, prefix="/contratacoes", tags=["Contratações"])
+router.include_router(contratacoes_router, prefix="/licitacoes", tags=["Contratações"])
 router.include_router(estatisticas_router, prefix="/estatisticas", tags=["Estatísticas"])
 router.include_router(perfil_router, prefix="/perfil", tags=["Perfil do MEI"])
