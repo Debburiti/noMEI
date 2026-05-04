@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as api_router
@@ -55,6 +56,16 @@ def create_app() -> FastAPI:
         return JSONResponse(
             status_code=exc.code,
             content={"detail": exc.message},
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        first_error = exc.errors()[0]
+        field = " → ".join(str(loc) for loc in first_error["loc"] if loc != "body")
+        message = f"{field}: {first_error['msg']}" if field else first_error["msg"]
+        return JSONResponse(
+            status_code=422,
+            content={"detail": message},
         )
 
     @app.get("/health", tags=["Health"])
