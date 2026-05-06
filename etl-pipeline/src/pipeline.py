@@ -1,8 +1,5 @@
 """
 Módulo de orquestração do pipeline ETL do PNCP.
-
-Coordena as etapas de Extração, Transformação e Carga (ETL),
-incluindo separação de entidades em múltiplas coleções no MongoDB.
 """
 
 import logging
@@ -10,7 +7,6 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
-from unittest import result
 
 from config.settings import Settings
 from src.extractor import PNCPExtractor
@@ -22,19 +18,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PipelineResult:
-    """
-    Resultado consolidado da execução do pipeline ETL.
-
-    Attributes:
-        total_extraido (int): Total de registros extraídos da API.
-        total_transformado (int): Total de registros transformados com sucesso.
-        total_inserido (int): Quantidade de documentos inseridos no MongoDB.
-        total_atualizado (int): Quantidade de documentos atualizados no MongoDB.
-        total_erros (int): Total de erros ocorridos durante o pipeline.
-        inicio (datetime): Momento de início da execução.
-        fim (datetime | None): Momento de término da execução.
-    """
-
     total_extraido: int = 0
     total_transformado: int = 0
     total_inserido: int = 0
@@ -45,21 +28,9 @@ class PipelineResult:
 
     @property
     def sucesso(self) -> bool:
-        """
-        Indica se o pipeline foi executado sem erros.
-
-        Returns:
-            bool: True se não houver erros, False caso contrário.
-        """
         return self.total_erros == 0
 
     def resumo(self) -> str:
-        """
-        Retorna um resumo textual da execução do pipeline.
-
-        Returns:
-            str: Resumo com métricas da execução.
-        """
         duracao = (self.fim - self.inicio).total_seconds() if self.fim else 0
         return (
             f"Sucesso: {self.sucesso} | Duração: {duracao:.1f}s | "
@@ -72,40 +43,13 @@ class PipelineResult:
 
 
 class ETLPipeline:
-    """
-    Orquestrador do pipeline ETL para dados do PNCP.
-
-    Fluxo:
-        1. Extract: coleta dados da API do PNCP.
-        2. Transform: limpa, normaliza e estrutura os dados.
-        3. Load: persiste os dados no MongoDB Atlas.
-
-    O pipeline utiliza micro-batches e permite separação de entidades
-    em múltiplas coleções (ex: contratações e órgãos).
-    """
-
     def __init__(self, settings: Settings) -> None:
-        """
-        Inicializa o pipeline ETL.
-
-        Args:
-            settings (Settings): Configurações da aplicação.
-        """
         self.settings = settings
         self.extractor = PNCPExtractor(settings)
         self.transformer = PNCPTransformer()
         self.loader = MongoDBLoader(settings)
 
     def run(self, extract_params: dict[str, Any]) -> PipelineResult:
-        """
-        Executa o pipeline ETL completo.
-
-        Args:
-            extract_params (dict): Parâmetros de extração enviados à API.
-
-        Returns:
-            PipelineResult: Estatísticas da execução.
-        """
         logger.info("=== Iniciando pipeline ETL PNCP ===")
         logger.info("Parâmetros de extração: %s", extract_params)
 
@@ -116,13 +60,12 @@ class ETLPipeline:
             with self.loader:
                 buffer: list[dict] = []
 
-                if "page_size" not in extract_params:
-                    extract_params["page_size"] = self.settings.PAGE_SIZE
-                
+                extract_params.setdefault("page_size", self.settings.PAGE_SIZE)
+
                 for raw_record in self.extractor.extract(**extract_params):
                     result.total_extraido += 1
                     buffer.append(raw_record)
-                    
+
                     if len(buffer) >= self.settings.BATCH_SIZE:
                         self._process_batch(buffer, result)
                         buffer.clear()
@@ -144,19 +87,10 @@ class ETLPipeline:
     def _process_batch(
         self, buffer: list[dict[str, Any]], result: PipelineResult
     ) -> None:
-        """
-        Processa um lote de registros (micro-batch).
-
-        Etapas:
-            - Transformação dos dados
-            - Separação em múltiplas entidades
-            - Carga no MongoDB
-
-        Args:
-            buffer (list[dict]): Lista de registros brutos.
-            result (PipelineResult): Objeto de métricas da execução.
-        """
-        logger.info("Processando batch de %d registros", len(buffer))
+        logger.info(
+            "Processando batch de %d registros (com CNAE + MEI)",
+            len(buffer),
+        )
 
         contratacoes = []
         orgaos = []
@@ -166,7 +100,6 @@ class ETLPipeline:
                 doc = self.transformer.transform(record)
                 contratacoes.append(doc)
 
-                # Separação de entidade: órgão
                 orgao = doc.get("orgaoEntidade")
 
                 if isinstance(orgao, dict):

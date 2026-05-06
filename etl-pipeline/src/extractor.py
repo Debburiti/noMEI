@@ -2,7 +2,7 @@
 Módulo de extração de dados da API pública do PNCP.
 
 Responsável por realizar requisições HTTP paginadas ao endpoint
-/v1/contratacoes/proposta e retornar os registros brutos.
+/v1/contratacoes/proposta e retornar os registros brutos enriquecidos.
 """
 
 import logging
@@ -18,29 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 class PNCPExtractor:
-    """
-    Extrai contratações com recebimento de propostas abertas da API do PNCP.
-
-    Suporta paginação automática e retentativas em caso de falhas transitórias.
-    """
-
     _ENDPOINT = "/v1/contratacoes/proposta"
 
     def __init__(self, settings: Settings) -> None:
-        """
-        Inicializa o extrator com as configurações fornecidas.
-        """
         self.settings = settings
+
         self.session = requests.Session()
         self.session.headers.update({
             "Accept": "application/json",
             "User-Agent": "etl-pncp/1.0"
         })
 
+        self._cache_itens: dict[str, list[dict]] = {}
+
     def _fetch_page(self, params: dict[str, Any]) -> dict[str, Any]:
-        """
-        Requisita uma página da API com suporte a retentativas.
-        """
         url = self.settings.BASE_URL + self._ENDPOINT
 
         for attempt in range(1, self.settings.MAX_RETRIES + 1):
@@ -55,8 +46,6 @@ class PNCPExtractor:
 
                 duration = time.time() - start_time
                 logger.info("Request concluída em %.2fs", duration)
-
-                logger.debug("Params enviados: %s", params)
 
                 if response.status_code == 422:
                     logger.error(
@@ -114,6 +103,66 @@ class PNCPExtractor:
 
         return {"data": [], "totalRegistros": 0}
 
+    def _fetch_itens(self, cnpj: str, ano: int, sequencial: int) -> list[dict]:
+        """
+        Busca itens do edital com cache + retry inteligente.
+        """
+
+        cache_key = f"{cnpj}-{ano}-{sequencial}"
+
+        if cache_key in self._cache_itens:
+            return self._cache_itens[cache_key]
+
+        url = f"{self.settings.BASE_URL}/v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens"
+
+        for attempt in range(1, self.settings.MAX_RETRIES + 1):
+            try:
+                response = self.session.get(
+                    url,
+                    timeout=(3, self.settings.REQUEST_TIMEOUT),
+                )
+                response.raise_for_status()
+
+                data = response.json().get("data", [])
+
+                self._cache_itens[cache_key] = data
+                return data
+
+            except requests.HTTPError as exc:
+                status = exc.response.status_code if exc.response else None
+
+                if status == 404:
+                    logger.debug("Itens não encontrados (404) para %s", cache_key)
+                    self._cache_itens[cache_key] = []
+                    return []
+
+                if attempt < self.settings.MAX_RETRIES:
+                    wait = self.settings.RETRY_BACKOFF * (2 ** (attempt - 1))
+                    logger.warning(
+                        "Erro HTTP %s ao buscar itens. Retry em %.1fs...",
+                        status,
+                        wait,
+                    )
+                    time.sleep(wait)
+                else:
+                    logger.warning("Falha ao buscar itens para %s", cache_key)
+                    self._cache_itens[cache_key] = []
+                    return []
+
+            except requests.RequestException as exc:
+                if attempt < self.settings.MAX_RETRIES:
+                    wait = self.settings.RETRY_BACKOFF * (2 ** (attempt - 1))
+                    logger.warning(
+                        "Erro ao buscar itens (%s). Retry em %.1fs...",
+                        str(exc),
+                        wait,
+                    )
+                    time.sleep(wait)
+                else:
+                    logger.warning("Falha ao buscar itens para %s", cache_key)
+                    self._cache_itens[cache_key] = []
+                    return []
+
     def extract(
         self,
         data_final: str,
@@ -126,9 +175,6 @@ class PNCPExtractor:
         max_paginas: int | None = None,
         page_size: int | None = None,
     ) -> Generator[dict[str, Any], None, None]:
-        """
-        Extrai registros do endpoint de propostas do PNCP utilizando paginação automática.
-        """
 
         page_size = page_size or self.settings.PAGE_SIZE
 
@@ -141,10 +187,6 @@ class PNCPExtractor:
         if not data_inicial:
             fallback = datetime.now() - timedelta(days=2)
             data_inicial = fallback.strftime("%Y%m%d")
-            logger.warning(
-                "dataInicial não informada — usando fallback: %s",
-                data_inicial,
-            )
 
         params: dict[str, Any] = {
             "dataFinal": data_final,
@@ -154,10 +196,7 @@ class PNCPExtractor:
         }
 
         if uf:
-            if isinstance(uf, list):
-                params["uf"] = ",".join(u.upper() for u in uf)
-            else:
-                params["uf"] = uf.upper()
+            params["uf"] = ",".join(uf) if isinstance(uf, list) else uf
 
         if codigo_modalidade is not None:
             params["codigoModalidadeContratacao"] = codigo_modalidade
@@ -180,37 +219,40 @@ class PNCPExtractor:
             records = payload.get("data", [])
 
             if not records:
-                logger.info("Nenhum registro retornado. Extração concluída.")
                 break
 
             for record in records:
+                try:
+                    orgao = record.get("orgaoEntidade", {})
+                    cnpj = orgao.get("cnpj")
+                    ano = record.get("anoCompra")
+                    sequencial = record.get("sequencialCompra")
+
+                    cnae_codes = set()
+
+                    if cnpj and ano and sequencial:
+                        itens = self._fetch_itens(cnpj, ano, sequencial)
+
+                        for item in itens:
+                            cnae = item.get("codigoCnae")
+                            if cnae:
+                                cnae_codes.add(cnae)
+
+                    record["cnae_codes"] = list(cnae_codes)
+
+                except Exception:
+                    logger.warning(
+                        "Erro ao enriquecer CNAE para %s",
+                        record.get("numeroControlePNCP"),
+                    )
+                    record["cnae_codes"] = []
+
                 yield record
 
             total_extraido += len(records)
 
-            total_registros = payload.get("totalRegistros", 0)
-            pagina_atual = params["pagina"]
-
-            page_size_used = params["tamanhoPagina"]
-
-            total_paginas = (
-                (total_registros + page_size_used - 1)
-                // page_size_used
-            ) if total_registros else "?"
-
-            logger.info(
-                "Página %d/%s | Registros coletados: %d/%s",
-                pagina_atual,
-                total_paginas,
-                total_extraido,
-                total_registros or "?",
-            )
-
             if max_paginas and params["pagina"] >= max_paginas:
                 logger.warning("Limite de páginas atingido (%d).", max_paginas)
-                break
-
-            if total_registros and total_extraido >= total_registros:
                 break
 
             params["pagina"] += 1
@@ -218,6 +260,5 @@ class PNCPExtractor:
         logger.info("Total de registros extraídos: %d", total_extraido)
 
     def close(self) -> None:
-        """Fecha a sessão HTTP."""
         self.session.close()
         logger.debug("Sessão HTTP encerrada.")

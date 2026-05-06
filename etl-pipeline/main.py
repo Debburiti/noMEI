@@ -31,15 +31,6 @@ def _configure_logging() -> None:
 def validar_data(data: str) -> str:
     """
     Valida formato de data YYYYMMDD.
-
-    Args:
-        data (str): Data informada.
-
-    Returns:
-        str: Data válida.
-
-    Raises:
-        argparse.ArgumentTypeError: Se formato inválido.
     """
     try:
         datetime.strptime(data, "%Y%m%d")
@@ -53,13 +44,6 @@ def validar_data(data: str) -> str:
 def validar_intervalo(data_inicial: str | None, data_final: str) -> None:
     """
     Valida consistência entre datas.
-
-    Args:
-        data_inicial (str | None): Data inicial.
-        data_final (str): Data final.
-
-    Raises:
-        ValueError: Se intervalo inválido.
     """
     df = datetime.strptime(data_final, "%Y%m%d")
 
@@ -76,9 +60,6 @@ def validar_intervalo(data_inicial: str | None, data_final: str) -> None:
 def _parse_args() -> argparse.Namespace:
     """
     Analisa argumentos da linha de comando.
-
-    Returns:
-        argparse.Namespace: Argumentos parseados.
     """
     parser = argparse.ArgumentParser(
         description="ETL PNCP → MongoDB Atlas"
@@ -99,7 +80,7 @@ def _parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--uf",
-        help="UF (ex: pe, sp, rj)",
+        help="UF (ex: PE, SP, RJ)",
     )
 
     parser.add_argument(
@@ -117,13 +98,13 @@ def _parse_args() -> argparse.Namespace:
         "--municipio-ibge",
         help="Código IBGE",
     )
-    
+
     parser.add_argument(
         "--max-paginas",
         type=int,
         default=None,
-        help="Limite de páginas para testes",
-    )  
+        help="Limite de páginas (útil para testes e evitar cargas grandes)",
+    )
 
     return parser.parse_args()
 
@@ -131,20 +112,21 @@ def _parse_args() -> argparse.Namespace:
 def main() -> int:
     """
     Função principal da aplicação.
-
-    Returns:
-        int: Código de saída (0 sucesso, 1 erro).
     """
     _configure_logging()
     logger = logging.getLogger(__name__)
 
     args = _parse_args()
 
+    # 🔹 validação de datas
     try:
         validar_intervalo(args.data_inicial, args.data_final)
     except ValueError as e:
         logger.error("Erro de validação: %s", str(e))
         return 1
+
+    # 🔹 normalização da UF
+    uf = args.uf.upper() if args.uf else None
 
     settings = Settings()
 
@@ -157,16 +139,22 @@ def main() -> int:
     extract_params = {
         "data_final": args.data_final,
         "data_inicial": args.data_inicial,
-        "uf": args.uf,
+        "uf": uf,
         "codigo_modalidade": args.modalidade,
         "cnpj": args.cnpj,
         "codigo_municipio_ibge": args.municipio_ibge,
         "max_paginas": args.max_paginas,
     }
-    
-    extract_params = {k: v for k, v in extract_params.items() if v is not None}
+
+    # remove None
+    extract_params = {
+        k: v for k, v in extract_params.items() if v is not None
+    }
 
     logger.info("Parâmetros finais: %s", extract_params)
+
+    if args.max_paginas:
+        logger.info("Execução limitada a %d página(s)", args.max_paginas)
 
     pipeline = ETLPipeline(settings)
     result = pipeline.run(extract_params)

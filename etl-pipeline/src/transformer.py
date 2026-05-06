@@ -11,7 +11,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Campos de data
 _DATE_FIELDS = (
     "dataAtualizacao",
     "dataInclusao",
@@ -21,7 +20,6 @@ _DATE_FIELDS = (
     "dataAtualizacaoGlobal",
 )
 
-# Formatos aceitos
 _DATE_FORMATS = (
     "%Y-%m-%dT%H:%M:%S",
     "%Y-%m-%dT%H:%M:%S.%f",
@@ -68,6 +66,7 @@ class PNCPTransformer:
     - Normalização de texto
     - Limpeza de dados
     - Definição de chave única (_id)
+    - Enriquecimento com regra de negócio (_mei_compativel)
     """
 
     def transform(self, record: dict[str, Any]) -> dict[str, Any]:
@@ -108,17 +107,24 @@ class PNCPTransformer:
                 .upper()
             )
 
-        # 4. Limpeza geral
+        # 4. Limpeza geral (ANTES da regra de negócio)
         doc = _clean_dict(doc)
 
-        # 5. Garantir _id
+        # 5. Regra de negócio: MEI compatível
+        valor = doc.get("valorTotalEstimado")
+
+        doc["_mei_compativel"] = (
+            isinstance(valor, (int, float)) and valor <= 144_900.0
+        )
+
+        # 6. Garantir _id
         numero_controle = doc.get("numeroControlePNCP")
         if not numero_controle:
             raise ValueError("Registro sem numeroControlePNCP")
 
         doc["_id"] = numero_controle
 
-        # 6. Metadata ETL
+        # 7. Metadata ETL
         doc["_etl_ingestao_em"] = datetime.now(tz=timezone.utc)
 
         return doc
