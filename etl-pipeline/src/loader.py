@@ -28,12 +28,6 @@ class MongoDBLoader:
     """
 
     def __init__(self, settings: Settings) -> None:
-        """
-        Inicializa o loader.
-
-        Args:
-            settings (Settings): Configurações da aplicação.
-        """
         self.settings = settings
         self._client: MongoClient | None = None
         self._collection: Collection | None = None
@@ -63,7 +57,8 @@ class MongoDBLoader:
 
     def _ensure_indexes(self) -> None:
         """
-        Cria índices para melhorar performance de consulta.
+        Cria índices para melhorar performance de consulta
+        com base nos filtros utilizados pelo backend.
         """
         assert self._collection is not None
 
@@ -75,17 +70,23 @@ class MongoDBLoader:
             background=True,
         )
 
-        logger.debug("Índices verificados/criados.")
+        self._collection.create_index("valorTotalEstimado", background=True)
+
+        self._collection.create_index("_mei_compativel", background=True)
+
+        self._collection.create_index("cnae_codes", background=True)
+
+        self._collection.create_index(
+            [("objetoCompra", "text")],
+            background=True,
+            name="idx_text_objetoCompra",
+        )
+
+        logger.info("Índices criados/atualizados com sucesso.")
 
     def load_batch(self, documents: list[dict[str, Any]]) -> dict[str, int]:
         """
         Carrega documentos na coleção principal.
-
-        Args:
-            documents (list): Documentos transformados.
-
-        Returns:
-            dict: Estatísticas da operação.
         """
         if self._collection is None:
             raise RuntimeError("Loader não conectado.")
@@ -150,10 +151,6 @@ class MongoDBLoader:
     def load_into_collection(self, documents: list[dict], collection_name: str) -> None:
         """
         Carrega documentos em uma coleção específica.
-
-        Args:
-            documents (list): Documentos a serem inseridos.
-            collection_name (str): Nome da coleção destino.
         """
         if self._client is None:
             raise RuntimeError("MongoDB não conectado.")
@@ -212,14 +209,8 @@ class MongoDBLoader:
             logger.debug("Conexão MongoDB encerrada.")
 
     def __enter__(self) -> "MongoDBLoader":
-        """
-        Context manager — abre conexão automaticamente.
-        """
         self.connect()
         return self
 
     def __exit__(self, *_: Any) -> None:
-        """
-        Context manager — fecha conexão automaticamente.
-        """
         self.close()
