@@ -18,11 +18,12 @@ logging.basicConfig(
 
 TAGS_METADATA = [
     {"name": "Health", "description": "Status da aplicação"},
-    {"name": "Contratações", "description": "Listagem e detalhe de licitações do PNCP (US-09, US-10)"},
-    {"name": "Estatísticas", "description": "Painel de estatísticas para o MEI (US-11)"},
-    {"name": "Perfil do MEI", "description": "Gestão de perfil e preferências (US-12)"},
-    {"name": "Alertas", "description": "Alertas e notificações do MEI (Sprint 3)"},
-    {"name": "Qualificação", "description": "Checklist de elegibilidade do MEI para licitações"},
+    {"name": "Contratações", "description": "Busca, filtros e navegação mobile para oportunidades abertas"},
+    {"name": "Estatísticas", "description": "Painel de estatísticas para o MEI"},
+    {"name": "Perfil do MEI", "description": "Gestão de perfil e preferências"},
+    {"name": "Alertas", "description": "Alertas e notificações do MEI"},
+    {"name": "Qualificação", "description": "Requisitos, elegibilidade e checklist de habilitação."},
+    {"name": "Documentos", "description": "Upload, visualização e pendências dos arquivos exigidos"},
 ]
 
 @asynccontextmanager
