@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
     app.middleware("http")(logging_middleware)
 
     # Inclusão das novas rotas em camadas
-    app.include_router(api_router, prefix="/api")
+    app.include_router(api_router, prefix="/api/v1")
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
