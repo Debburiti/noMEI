@@ -16,17 +16,23 @@ class ContratacaoRepository:
         modalidade_id: int | None = None,
         valor_max: float | None = None,
         mei_compativel: bool | None = None,
+        busca: str | None = None,
+        cnae: str | None = None,
     ) -> tuple[list[dict[Any, Any]], int]:
 
         query = {}
+        if busca:
+            query["objetoCompra"] = {"$regex": busca, "$options": "i"}
         if uf:
-            query["unidadeOrçamentaria.ufSigla"] = uf
+            query["unidadeOrgao.ufSigla"] = uf
         if modalidade_id is not None:
             query["modalidadeId"] = modalidade_id
         if valor_max is not None:
             query["valorTotalEstimado"] = {"$lte": valor_max}
         if mei_compativel is not None:
             query["_mei_compativel"] = mei_compativel
+        if cnae is not None:
+            query["cnae_codes"] = cnae
 
         cursor = self.collection.find(query).sort("dataEncerramentoProposta", 1).skip(skip).limit(limit)
         items = await cursor.to_list(length=limit)
@@ -39,7 +45,7 @@ class ContratacaoRepository:
 
     async def get_estatisticas(self) -> dict[str, Any]:
         pipeline_uf = [
-            {"$group": {"_id": "$unidadeOrçamentaria.ufSigla", "total": {"$sum": 1}}}
+            {"$group": {"_id": "$unidadeOrgao.ufSigla", "total": {"$sum": 1}}}
         ]
 
         pipeline_modalidade = [

@@ -9,7 +9,9 @@ service = ContratacaoService()
 
 @router.get("/", response_model=ContratacaoListResponse)
 async def listar_contratacoes(
-    uf: str | None = Query(None, description="Filtrar por UF"),
+    busca: str | None = Query(None, description="Busca por texto no objeto da compra"),
+    uf: str | None = Query(None, description="Filtrar por UF (ex: SP, MG, RJ)"),
+    cnae: str | None = Query(None, description="Filtrar por código CNAE (ex: 4120-4/00)"),
     modalidadeId: int | None = Query(None, description="Filtrar por ID da modalidade"),
     valorMax: float | None = Query(None, description="Valor máximo estimado"),
     meiCompativel: bool | None = Query(None, description="Apenas compatíveis com MEI"),
@@ -22,7 +24,9 @@ async def listar_contratacoes(
     return await service.listar_contratacoes(
         page=page,
         limit=limit,
+        busca=busca,
         uf=uf,
+        cnae=cnae,
         modalidade_id=modalidadeId,
         valor_max=valorMax,
         mei_compativel=meiCompativel
