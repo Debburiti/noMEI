@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-   ScrollView,
-   StyleSheet,
-   Text,
-   TextInput,
-   TouchableOpacity,
-   View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Header, StatusBadge, RecommendedCard } from "../components";
-import type { RecommendedBid } from "../components";
-import { colors, spacing, borderRadius, shadows, textPresets } from "../theme";
-import type { MainTabScreenProps, BidStatus } from "../types";
+/**
+ * @file src/screens/HomeScreen.tsx
+ * @placeholder — Dashboard Principal
+ *
+ * Sprint de implementação: Sprint 2
+ * TODO: Barra de busca, filtros por categoria, banner de oportunidades, lista de editais.
+ */
+
+import React, { useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Header, BidCard, EmptyState, ErrorState } from '../components';
+import { colors, spacing, textPresets } from '../theme';
+import { useLicitacoes } from '../hooks';
+import { useProfile } from '../context/ProfileContext';
+import type { MainTabScreenProps } from '../types';
 
 type Props = MainTabScreenProps<"Inicio">;
 
@@ -44,229 +45,131 @@ const RECOMMENDED: RecommendedBid[] = [
 ];
 
 export function HomeScreen({ navigation }: Props): React.JSX.Element {
-   const [activeFilter, setActiveFilter] = useState("Todos");
-   const [search, setSearch] = useState("");
+  const { selectedCategories, selectedLabels } = useProfile();
+  const { items, loading, error } = useLicitacoes({ limit: 100 });
 
-   return (
-      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
-         {/* Header */}
-         <Header
-            variant="default"
-            notificationCount={3}
-            onNotificationPress={() => navigation.navigate("Alertas")}
-         />
+  const recommendedItems = useMemo(() => {
+    const hasPreferences = selectedCategories.length > 0 || selectedLabels.length > 0;
+    if (!hasPreferences) return items;
 
-         <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false}
-         >
-            {/* Saudação */}
-            <View style={styles.greetingBlock}>
-               <Text style={styles.greeting}>Olá, João!</Text>
-               <Text style={styles.subtitle}>
-                  Bem-vindo ao seu painel de licitações.
-               </Text>
-            </View>
+    const labelsLower = selectedLabels.map((l) => l.toLowerCase());
 
-            {/* Busca */}
-            <View style={styles.searchBar}>
-               <Ionicons
-                  name="search-outline"
-                  size={18}
-                  color={colors.placeholder}
-               />
-               <TextInput
-                  style={styles.searchInput}
-                  placeholder="Buscar licitações..."
-                  placeholderTextColor={colors.placeholder}
-                  value={search}
-                  onChangeText={setSearch}
-                  returnKeyType="search"
-               />
-            </View>
+    const scored = items.flatMap((bid) => {
+      const categoryMatch = selectedCategories.includes(bid.category);
+      const titleLower = bid.title.toLowerCase();
+      const textMatch = labelsLower.some((label) => titleLower.includes(label));
 
-            {/* Filtros */}
-            <ScrollView
-               horizontal
-               showsHorizontalScrollIndicator={false}
-               contentContainerStyle={styles.filtersContainer}
-            >
-               {FILTERS.map((filter) => (
-                  <TouchableOpacity
-                     key={filter}
-                     style={[
-                        styles.filterChip,
-                        activeFilter === filter && styles.filterChipActive,
-                     ]}
-                     onPress={() => setActiveFilter(filter)}
-                     activeOpacity={0.75}
-                  >
-                     <Text
-                        style={[
-                           styles.filterLabel,
-                           activeFilter === filter && styles.filterLabelActive,
-                        ]}
-                     >
-                        {filter}
-                     </Text>
-                  </TouchableOpacity>
-               ))}
-            </ScrollView>
+      if (categoryMatch) return [{ ...bid, compatibility: 100 }];
+      if (textMatch) return [{ ...bid, compatibility: 50 }];
+      return [];
+    });
 
-            {/* Banner de oportunidades */}
-            <TouchableOpacity style={styles.banner} activeOpacity={0.9}>
-               <View style={styles.bannerContent}>
-                  <Text style={styles.bannerTag}>OPORTUNIDADES</Text>
-                  <Text style={styles.bannerText}>
-                     3 novas licitações para{"\n"}seu CNAE
-                  </Text>
-               </View>
-               <View style={styles.bannerArrow}>
-                  <Ionicons
-                     name="arrow-forward"
-                     size={22}
-                     color={colors.primary}
-                  />
-               </View>
-            </TouchableOpacity>
+    // Ordena: 100% primeiro, depois 50%
+    return scored.sort((a, b) => b.compatibility - a.compatibility);
+  }, [items, selectedCategories, selectedLabels]);
 
-            {/* Recomendadas */}
-            <View style={styles.sectionRow}>
-               <Text style={styles.sectionTitle}>Recomendadas para você</Text>
-               <TouchableOpacity onPress={() => {}}>
-                  <Text style={styles.sectionLink}>Ver todas</Text>
-               </TouchableOpacity>
-            </View>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Header
+        variant="default"
+        notificationCount={3}
+        onNotificationPress={() => navigation.navigate('Alertas')}
+      />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <Text style={styles.greeting}>Olá, João! 👋</Text>
+        <Text style={styles.subtitle}>Bem-vindo ao seu painel de licitações.</Text>
 
-            {RECOMMENDED.map((bid) => (
-               <RecommendedCard
-                  key={bid.id}
-                  bid={bid}
-                  onPress={() =>
-                     navigation.navigate("DetalhesLicitacao", {
-                        bidId: bid.id,
-                        bidTitle: bid.title,
-                     })
-                  }
-               />
-            ))}
-         </ScrollView>
-      </SafeAreaView>
-   );
+        {/* Sprint 2: busca, filtros e banner aqui */}
+        <View style={styles.placeholderSection}>
+          <Text style={styles.placeholderLabel}>🔍 Busca e Filtros — Sprint 2</Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>Recomendadas para você</Text>
+
+        {loading && (
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+        )}
+
+        {error && !loading && (
+          <ErrorState
+            title="Erro ao carregar licitações"
+            description={error}
+          />
+        )}
+
+        {!loading && !error && recommendedItems.map(bid => (
+          <BidCard
+            key={bid.id}
+            title={bid.title}
+            agency={bid.agency}
+            value={bid.value}
+            status={bid.status}
+            deadline={bid.deadline}
+            compatibility={bid.compatibility}
+            onPress={() =>
+              navigation.navigate('DetalhesLicitacao', {
+                bidId: bid.id,
+                bidTitle: bid.title,
+              })
+            }
+          />
+        ))}
+
+        {!loading && !error && recommendedItems.length === 0 && (
+          <EmptyState
+            icon="search-outline"
+            title="Sem recomendações no momento"
+            description="Complete seu perfil para receber oportunidades alinhadas ao seu CNAE."
+            actionLabel="Completar perfil"
+            onAction={() => navigation.navigate('Perfil')}
+          />
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-   safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-   },
-   scroll: {
-      flex: 1,
-   },
-   content: {
-      padding: spacing[4],
-      paddingBottom: spacing[10],
-      gap: spacing[4],
-   },
-   greetingBlock: {
-      gap: spacing[1],
-   },
-   greeting: {
-      fontSize: 26,
-      fontWeight: "800",
-      color: colors.textPrimary,
-      lineHeight: 32,
-   },
-   subtitle: {
-      ...textPresets.bodyMd,
-      color: colors.textSecondary,
-   },
-   searchBar: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.white,
-      borderRadius: borderRadius.full,
-      borderWidth: 1,
-      borderColor: colors.border,
-      paddingHorizontal: spacing[4],
-      paddingVertical: spacing[3],
-      gap: spacing[2],
-      ...shadows.xs,
-   },
-   searchInput: {
-      flex: 1,
-      ...textPresets.bodyMd,
-      color: colors.textPrimary,
-      padding: 0,
-   },
-   filtersContainer: {
-      gap: spacing[2],
-      paddingRight: spacing[4],
-   },
-   filterChip: {
-      paddingVertical: spacing[2],
-      paddingHorizontal: spacing[4],
-      borderRadius: borderRadius.full,
-      backgroundColor: colors.white,
-      borderWidth: 1,
-      borderColor: colors.border,
-   },
-   filterChipActive: {
-      backgroundColor: colors.dark,
-      borderColor: colors.dark,
-   },
-   filterLabel: {
-      ...textPresets.labelSm,
-      color: colors.textSecondary,
-   },
-   filterLabelActive: {
-      color: colors.white,
-   },
-   banner: {
-      backgroundColor: colors.primary,
-      borderRadius: borderRadius.lg,
-      padding: spacing[5],
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-   },
-   bannerContent: {
-      flex: 1,
-      gap: spacing[1],
-   },
-   bannerTag: {
-      fontSize: 10,
-      fontWeight: "700",
-      letterSpacing: 1.5,
-      color: "rgba(255,255,255,0.75)",
-   },
-   bannerText: {
-      fontSize: 20,
-      fontWeight: "800",
-      color: colors.white,
-      lineHeight: 26,
-   },
-   bannerArrow: {
-      width: 44,
-      height: 44,
-      borderRadius: borderRadius.full,
-      backgroundColor: colors.white,
-      alignItems: "center",
-      justifyContent: "center",
-      marginLeft: spacing[4],
-   },
-   sectionRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-   },
-   sectionTitle: {
-      ...textPresets.h5,
-      color: colors.textPrimary,
-   },
-   sectionLink: {
-      ...textPresets.labelSm,
-      color: colors.primary,
-   },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    padding: spacing[4],
+    paddingBottom: spacing[10],
+    gap: spacing[3],
+  },
+  greeting: {
+    ...textPresets.h3,
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    ...textPresets.bodyMd,
+    color: colors.textSecondary,
+    marginTop: -spacing[1],
+  },
+  sectionTitle: {
+    ...textPresets.h5,
+    color: colors.textPrimary,
+    marginTop: spacing[2],
+  },
+  placeholderSection: {
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    padding: spacing[4],
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  placeholderLabel: {
+    ...textPresets.bodyMd,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  loader: {
+    marginVertical: spacing[6],
+  },
 });
