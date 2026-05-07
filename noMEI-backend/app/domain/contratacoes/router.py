@@ -32,7 +32,7 @@ async def listar_contratacoes(
         mei_compativel=meiCompativel
     )
 
-@router.get("/{numeroControlePNCP}", response_model=ContratacaoResponse, response_model_by_alias=False)
+@router.get("/{numeroControlePNCP:path}", response_model=ContratacaoResponse, response_model_by_alias=False)
 async def obter_contratacao(numeroControlePNCP: str):
     """
     US-10 — Detalhe de uma contratação
