@@ -7,7 +7,7 @@ from app.domain.contratacoes.service import ContratacaoService
 router = APIRouter()
 service = ContratacaoService()
 
-@router.get("/", response_model=ContratacaoListResponse)
+@router.get("/", response_model=ContratacaoListResponse, response_model_by_alias=False)
 async def listar_contratacoes(
     busca: str | None = Query(None, description="Busca por texto no objeto da compra"),
     uf: str | None = Query(None, description="Filtrar por UF (ex: SP, MG, RJ)"),
@@ -32,7 +32,7 @@ async def listar_contratacoes(
         mei_compativel=meiCompativel
     )
 
-@router.get("/{numeroControlePNCP}", response_model=ContratacaoResponse)
+@router.get("/{numeroControlePNCP}", response_model=ContratacaoResponse, response_model_by_alias=False)
 async def obter_contratacao(numeroControlePNCP: str):
     """
     US-10 — Detalhe de uma contratação
