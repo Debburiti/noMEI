@@ -39,7 +39,7 @@ const GOV_BR_DATA = {
 
 export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Element {
   const insets = useSafeAreaInsets();
-  const { setSelectedAreas: saveToContext } = useProfile();
+  const { setSelectedAreas: saveToContext, setCnpj } = useProfile();
   const [selectedAreas, setSelectedAreas] = useState<string[]>(['tech', 'office']);
 
    function toggleArea(id: string): void {
@@ -55,6 +55,7 @@ export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Eleme
       .map((area) => area.category as string);
     const labels = selected.map((area) => area.label);
     saveToContext(selectedAreas, categories, labels);
+    setCnpj(GOV_BR_DATA.cnpj);
     navigation.navigate('MainTabs');
   }
 
