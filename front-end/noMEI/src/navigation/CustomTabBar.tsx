@@ -49,11 +49,6 @@ const TAB_CONFIG: Record<TabName, TabConfig> = {
     iconActive: 'document-text',
     label: 'Documentos',
   },
-  Alertas: {
-    icon: 'notifications-outline',
-    iconActive: 'notifications',
-    label: 'Alertas',
-  },
   Perfil: {
     icon: 'person-outline',
     iconActive: 'person',

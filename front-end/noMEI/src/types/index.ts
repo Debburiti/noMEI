@@ -66,13 +66,13 @@ export type RootStackParamList = {
     bidId: string;
     bidTitle: string;
   };
+  Alertas: undefined;
 };
 
 export type MainTabParamList = {
   Inicio: undefined;
   Disputas: undefined;
   Documentos: undefined;
-  Alertas: undefined;
   Perfil: undefined;
 };
 

@@ -8,12 +8,12 @@
 
 export const colors = {
   // ─── Brand ────────────────────────────────────────────────────
-  /** Azul escuro — header, fundo de telas de auth */
-  dark: '#1A2B5E',
+  /** Azul royal — header, banner, fundo de telas de auth */
+  dark: '#1558C0',
   /** Azul primário — CTAs, destaques, links */
-  primary: '#2D5BE3',
+  primary: '#1A6FE0',
   /** Azul primário suave — fundo do pill ativo na tab bar */
-  primaryLight: '#EBF0FF',
+  primaryLight: '#E8F0FF',
 
   // ─── Semantic ─────────────────────────────────────────────────
   /** Verde sucesso */
@@ -63,9 +63,9 @@ export const statusColors = {
   },
   /** Proposta enviada / aguardando resultado */
   sent: {
-    bg: '#EBF0FF',
-    text: '#2D5BE3',
-    border: '#2D5BE3',
+    bg: '#E8F0FF',
+    text: '#1A6FE0',
+    border: '#1A6FE0',
   },
   /** MEI vencedor da licitação */
   winner: {

@@ -10,7 +10,6 @@ import {
   HomeScreen,
   DisputasScreen,
   DocumentosScreen,
-  AlertasScreen,
   PerfilScreen,
 } from '../screens';
 import type { MainTabParamList } from '../types';
@@ -26,7 +25,6 @@ export function TabNavigator(): React.JSX.Element {
       <Tab.Screen name="Inicio" component={HomeScreen} />
       <Tab.Screen name="Disputas" component={DisputasScreen} />
       <Tab.Screen name="Documentos" component={DocumentosScreen} />
-      <Tab.Screen name="Alertas" component={AlertasScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
