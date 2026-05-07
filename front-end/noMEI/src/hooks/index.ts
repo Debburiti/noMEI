@@ -9,5 +9,4 @@
  *  - useProfile     → dados do perfil do MEI
  */
 
-// Sprint 2+: hooks serão adicionados aqui
-export {};
+export { useLicitacoes } from './useLicitacoes';

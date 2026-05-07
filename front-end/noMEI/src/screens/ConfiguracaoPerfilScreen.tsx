@@ -22,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components';
 import { colors, spacing, borderRadius, shadows, textPresets } from '../theme';
+import { useProfile } from '../context/ProfileContext';
 import type { RootStackScreenProps } from '../types';
 
 type Props = RootStackScreenProps<'ProfileSetup'>;
@@ -29,16 +30,18 @@ type Props = RootStackScreenProps<'ProfileSetup'>;
 // ─── Áreas de Interesse Disponíveis ──────────────────────────────────────────
 
 const INTEREST_AREAS = [
-  { id: 'tech', label: 'Tecnologia', icon: 'laptop-outline' as const },
-  { id: 'office', label: 'Material de Escritório', icon: 'documents-outline' as const },
-  { id: 'cleaning', label: 'Limpeza', icon: 'sparkles-outline' as const },
-  { id: 'food', label: 'Alimentação', icon: 'restaurant-outline' as const },
-  { id: 'construction', label: 'Construção', icon: 'construct-outline' as const },
-  { id: 'health', label: 'Saúde', icon: 'medkit-outline' as const },
-  { id: 'transport', label: 'Transporte', icon: 'car-outline' as const },
-  { id: 'consulting', label: 'Consultoria', icon: 'briefcase-outline' as const },
-  { id: 'security', label: 'Segurança', icon: 'shield-outline' as const },
-  { id: 'events', label: 'Eventos', icon: 'calendar-outline' as const },
+  { id: 'tech', label: 'Tecnologia', icon: 'laptop-outline' as const, category: null },
+  { id: 'office', label: 'Material de Escritório', icon: 'documents-outline' as const, category: null },
+  { id: 'cleaning', label: 'Limpeza', icon: 'sparkles-outline' as const, category: null },
+  { id: 'food', label: 'Alimentação', icon: 'restaurant-outline' as const, category: null },
+  { id: 'construction', label: 'Construção', icon: 'construct-outline' as const, category: null },
+  { id: 'health', label: 'Saúde', icon: 'medkit-outline' as const, category: null },
+  { id: 'transport', label: 'Transporte', icon: 'car-outline' as const, category: null },
+  { id: 'consulting', label: 'Consultoria', icon: 'briefcase-outline' as const, category: null },
+  { id: 'security', label: 'Segurança', icon: 'shield-outline' as const, category: null },
+  { id: 'events', label: 'Eventos', icon: 'calendar-outline' as const, category: null },
+  { id: 'dispensa', label: 'Dispensa', icon: 'receipt-outline' as const, category: 'Dispensa' },
+  { id: 'concurso', label: 'Concurso', icon: 'trophy-outline' as const, category: 'Concurso' },
 ];
 
 // ─── Mock Gov.br Data ─────────────────────────────────────────────────────────
@@ -53,6 +56,7 @@ const GOV_BR_DATA = {
 
 export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Element {
   const insets = useSafeAreaInsets();
+  const { setSelectedAreas: saveToContext } = useProfile();
   const [selectedAreas, setSelectedAreas] = useState<string[]>(['tech', 'office']);
 
   function toggleArea(id: string): void {
@@ -62,6 +66,12 @@ export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Eleme
   }
 
   function handleSave(): void {
+    const selected = INTEREST_AREAS.filter((area) => selectedAreas.includes(area.id));
+    const categories = selected
+      .filter((area) => area.category !== null)
+      .map((area) => area.category as string);
+    const labels = selected.map((area) => area.label);
+    saveToContext(selectedAreas, categories, labels);
     navigation.navigate('MainTabs');
   }
 

@@ -6,16 +6,41 @@
  * TODO: Barra de busca, filtros por categoria, banner de oportunidades, lista de editais.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Header, BidCard, EmptyState } from '../components';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Header, BidCard, EmptyState, ErrorState } from '../components';
 import { colors, spacing, textPresets } from '../theme';
+import { useLicitacoes } from '../hooks';
+import { useProfile } from '../context/ProfileContext';
 import type { MainTabScreenProps } from '../types';
 
 type Props = MainTabScreenProps<'Inicio'>;
 
 export function HomeScreen({ navigation }: Props): React.JSX.Element {
+  const { selectedCategories, selectedLabels } = useProfile();
+  const { items, loading, error } = useLicitacoes({ limit: 100 });
+
+  const recommendedItems = useMemo(() => {
+    const hasPreferences = selectedCategories.length > 0 || selectedLabels.length > 0;
+    if (!hasPreferences) return items;
+
+    const labelsLower = selectedLabels.map((l) => l.toLowerCase());
+
+    const scored = items.flatMap((bid) => {
+      const categoryMatch = selectedCategories.includes(bid.category);
+      const titleLower = bid.title.toLowerCase();
+      const textMatch = labelsLower.some((label) => titleLower.includes(label));
+
+      if (categoryMatch) return [{ ...bid, compatibility: 100 }];
+      if (textMatch) return [{ ...bid, compatibility: 50 }];
+      return [];
+    });
+
+    // Ordena: 100% primeiro, depois 50%
+    return scored.sort((a, b) => b.compatibility - a.compatibility);
+  }, [items, selectedCategories, selectedLabels]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header
@@ -34,42 +59,44 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
 
         <Text style={styles.sectionTitle}>Recomendadas para você</Text>
 
-        <BidCard
-          title="Fornecimento de Material de Escritório"
-          agency="Prefeitura Municipal de São Paulo"
-          value={14500}
-          status="open"
-          deadline="Prazo: 30/11"
-          compatibility={95}
-          onPress={() =>
-            navigation.navigate('DetalhesLicitacao', {
-              bidId: '1',
-              bidTitle: 'Fornecimento de Material de Escritório',
-            })
-          }
-        />
-        <BidCard
-          title="Serviços de Manutenção Predial"
-          agency="Tribunal de Justiça do Estado"
-          value={8900}
-          status="analysis"
-          deadline="Prazo: 15/12"
-          compatibility={78}
-          onPress={() =>
-            navigation.navigate('DetalhesLicitacao', {
-              bidId: '2',
-              bidTitle: 'Serviços de Manutenção Predial',
-            })
-          }
-        />
+        {loading && (
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+        )}
 
-        <EmptyState
-          icon="search-outline"
-          title="Sem mais recomendações"
-          description="Complete seu perfil para receber mais oportunidades alinhadas ao seu CNAE."
-          actionLabel="Completar perfil"
-          onAction={() => navigation.navigate('Perfil')}
-        />
+        {error && !loading && (
+          <ErrorState
+            title="Erro ao carregar licitações"
+            description={error}
+          />
+        )}
+
+        {!loading && !error && recommendedItems.map(bid => (
+          <BidCard
+            key={bid.id}
+            title={bid.title}
+            agency={bid.agency}
+            value={bid.value}
+            status={bid.status}
+            deadline={bid.deadline}
+            compatibility={bid.compatibility}
+            onPress={() =>
+              navigation.navigate('DetalhesLicitacao', {
+                bidId: bid.id,
+                bidTitle: bid.title,
+              })
+            }
+          />
+        ))}
+
+        {!loading && !error && recommendedItems.length === 0 && (
+          <EmptyState
+            icon="search-outline"
+            title="Sem recomendações no momento"
+            description="Complete seu perfil para receber oportunidades alinhadas ao seu CNAE."
+            actionLabel="Completar perfil"
+            onAction={() => navigation.navigate('Perfil')}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -114,5 +141,8 @@ const styles = StyleSheet.create({
     ...textPresets.bodyMd,
     color: colors.textSecondary,
     textAlign: 'center',
+  },
+  loader: {
+    marginVertical: spacing[6],
   },
 });
