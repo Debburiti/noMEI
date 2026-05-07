@@ -1,14 +1,3 @@
-/**
- * @file App.tsx
- * @description Componente raiz do app noMEI.
- *
- * Responsabilidades:
- *  1. GestureHandlerRootView  — habilita gestos do React Navigation
- *  2. SafeAreaProvider        — fornece insets de safe area para Header e TabBar
- *  3. NavigationContainer     — provedor de contexto do React Navigation
- *  4. RootNavigator           — define o stack de rotas da aplicação
- *  5. StatusBar               — configura a barra de status com a identidade visual noMEI
- */
 
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';

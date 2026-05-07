@@ -1,14 +1,3 @@
-/**
- * @file src/components/Header.tsx
- * @description Cabeçalho customizado de telas do noMEI.
- *
- * Variantes:
- *  - "default" → logo "noMEI" à esquerda + sino de notificação à direita
- *  - "back"    → botão de voltar + título centralizado
- *  - "screen"  → título centralizado + sino à direita (telas de seção)
- *  - "detail"  → fundo branco, voltar + bookmark + share
- */
-
 import React from "react";
 import {
    StyleSheet,
@@ -21,8 +10,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing, borderRadius, textPresets } from "../theme";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface HeaderDefaultProps {
    variant: "default";
@@ -50,16 +37,21 @@ interface HeaderDetailProps {
    onSharePress?: () => void;
 }
 
+interface HeaderModalProps {
+   variant: "modal";
+   title: string;
+   onClosePress: () => void;
+}
+
 type HeaderProps = (
    | HeaderDefaultProps
    | HeaderBackProps
    | HeaderScreenProps
    | HeaderDetailProps
+   | HeaderModalProps
 ) & {
    style?: StyleProp<ViewStyle>;
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function Header(props: HeaderProps): React.JSX.Element {
    const insets = useSafeAreaInsets();
@@ -174,6 +166,23 @@ export function Header(props: HeaderProps): React.JSX.Element {
       );
    }
 
+   if (props.variant === "modal") {
+      return (
+         <View style={[styles.modalHeader, props.style]}>
+            <Text style={styles.modalTitle} numberOfLines={1}>
+               {props.title}
+            </Text>
+            <TouchableOpacity
+               onPress={props.onClosePress}
+               style={styles.closeButton}
+               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+               <Ionicons name="close" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+         </View>
+      );
+   }
+
    const hasNotification = (props.notificationCount ?? 0) > 0;
 
    return (
@@ -211,8 +220,6 @@ export function Header(props: HeaderProps): React.JSX.Element {
       </View>
    );
 }
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
    container: {
@@ -293,6 +300,28 @@ const styles = StyleSheet.create({
       ...textPresets.labelSm,
       color: colors.white,
       fontSize: 9,
+   },
+   modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: spacing[4],
+      paddingVertical: spacing[4],
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.white,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+   },
+   modalTitle: {
+      ...textPresets.h4,
+      color: colors.textPrimary,
+      flex: 1,
+   },
+   closeButton: {
+      padding: spacing[1],
+      backgroundColor: colors.inputBg,
+      borderRadius: borderRadius.full,
    },
    backButton: {
       padding: spacing[1],

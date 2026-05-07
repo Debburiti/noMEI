@@ -1,11 +1,3 @@
-/**
- * @file src/screens/AlertasScreen.tsx
- * @placeholder — Alertas & Agenda
- *
- * Sprint de implementação: Sprint 3
- * TODO: Calendário semanal, card de entrega do dia, lista de notificações com ícones por tipo.
- */
-
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -67,16 +59,15 @@ export function AlertasScreen({ navigation }: Props): React.JSX.Element {
    return (
       <SafeAreaView style={styles.safeArea}>
          <Header
-            variant="back"
+            variant="modal"
             title="Alertas & Notificações"
-            onBackPress={() => navigation.goBack()}
+            onClosePress={() => navigation.goBack()}
          />
 
          <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.content}
          >
-            {/* Calendário placeholder */}
             <View style={styles.calendarPlaceholder}>
                <Text style={styles.calendarTitle}>
                   📅 Calendário Semanal — Sprint 3
@@ -86,7 +77,6 @@ export function AlertasScreen({ navigation }: Props): React.JSX.Element {
                </Text>
             </View>
 
-            {/* Lista de alertas */}
             <Text style={styles.sectionTitle}>Recentes</Text>
 
             {MOCK_ALERTS.length === 0 ? (
