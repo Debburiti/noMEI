@@ -37,3 +37,11 @@ def create_refresh_token(subject: str | int) -> str:
 def decode_token(token: str) -> dict[str, Any]:
     """Decodifica e valida o token. Lança JWTError em caso de falha."""
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+
+def create_tokens(subject: str | int) -> dict:
+    """Cria access + refresh token e retorna no formato TokenResponse."""
+    return {
+        "access_token": create_access_token(subject),
+        "refresh_token": create_refresh_token(subject),
+        "token_type": "bearer",
+    }
