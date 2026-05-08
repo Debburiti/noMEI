@@ -17,4 +17,4 @@ class PerfilResponse(PerfilBase):
     model_config = ConfigDict(populate_by_name=True)
 
     id: str = Field(..., alias="_id")
-    user_id: str
+    user_id: str | None = None

@@ -1,5 +1,6 @@
 from typing import Any
 from bson import ObjectId
+from bson.errors import InvalidId
 from app.core.database import get_database
 
 class UserRepository:
@@ -14,7 +15,11 @@ class UserRepository:
         return doc
 
     async def get_by_id(self, user_id: str) -> dict | None:
-        doc = await self.collection.find_one({"_id": ObjectId(user_id)})
+        try:
+            oid = ObjectId(user_id)
+        except InvalidId:
+            return None
+        doc = await self.collection.find_one({"_id": oid})
         if doc:
             doc["_id"] = str(doc["_id"])
         return doc

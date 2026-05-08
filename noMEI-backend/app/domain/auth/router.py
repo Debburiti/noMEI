@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from app.domain.auth.schemas import UserCreate, UserLogin, TokenResponse
+from app.domain.auth.schemas import UserCreate, UserLogin, TokenResponse, RefreshRequest
 from app.domain.auth.service import AuthService
 
 router = APIRouter()
@@ -16,5 +16,12 @@ async def register(body: UserCreate):
 async def login(body: UserLogin):
     try:
         return await service.autenticar(body.email, body.password)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh(body: RefreshRequest):
+    try:
+        return await service.renovar_token(body.refresh_token)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
