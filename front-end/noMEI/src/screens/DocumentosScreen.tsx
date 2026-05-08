@@ -1,6 +1,7 @@
 /**
  * @file src/screens/DocumentosScreen.tsx
  * @description Gestão de Documentos — upload e listagem via API
+ * 
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
