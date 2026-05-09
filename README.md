@@ -25,6 +25,12 @@ Cadastro do perfil com CNPJ, CNAE e localização, utilizado para personalizar a
 ### Estatísticas
 Visão consolidada das oportunidades disponíveis por estado e modalidade de contratação.
 
+### Alertas e notificações (previsto)
+Notificações automáticas sobre novos editais compatíveis com o perfil do MEI e avisos de prazo de encerramento de propostas.
+
+### Histórico de participações (previsto)
+Dashboard com o registro das licitações acompanhadas pelo MEI, permitindo visualizar o histórico de propostas submetidas e seus resultados.
+
 ---
 
 ## Arquitetura
