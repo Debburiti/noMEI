@@ -102,7 +102,7 @@ uv run python main.py --data-inicial 20260101 --data-final 20261231 --uf PE
 
 A documentação completa do projeto — decisões de produto, histórias de usuário, fluxos e especificações técnicas — está no Notion do time:
 
-> [Adicionar link do Notion aqui]
+> https://www.notion.so/noMEI-Gest-o-de-Projeto-343b644657ed8065a36ecb1169276732?pvs=11
 
 A documentação da API (Swagger) fica disponível localmente ao rodar o backend:
 
@@ -124,14 +124,14 @@ Cada camada tem seu próprio README com instruções detalhadas:
 
 | Nome | Papel |
 |------|-------|
-| | |
-| | |
-| | |
-| | |
-| | |
-| | |
-| | |
-| | |
+| Débora Buriti | Líder de Backend |
+| Mirella Santana | Desenvolvedora Front-end |
+| Myllena Navarro | Engenheira de dados |
+| Pedro Fernandes | Tech lead |
+| Giulliano Muniz | Desenvolvedor Front-end  |
+| Ítalo Artur |Desenvolvedor Backend |
+| Luis Facunde | Desenvolvedor Front-end |
+| Gustavo Lino | Desenvolvedor Backend |
 
 ---
 
