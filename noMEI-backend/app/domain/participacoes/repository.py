@@ -16,8 +16,21 @@ class ParticipacaoRepository:
             {
                 "$facet": {
                     "resumo_status": [
-                        {"$group": {"_id": "$status_proposta", "total": {"$sum": 1}}},
-                        {"$project": {"_id": 0, "status": "$_id", "total": "$total"}},
+                        {"$group": 
+                            {
+                            "_id": "$status_proposta", 
+                            "total": {"$sum": 1},
+                            "processos_ids": {"$push": {"$toString": "$_id"}}
+                            }
+                        },
+                        {"$project": 
+                            {
+                             "_id": 0, 
+                             "status": "$_id", 
+                             "total": "$total",
+                             "processos_ids": 1
+                            }
+                        },
                     ],
                     "total_participacoes": [{"$count": "total"}],
                 }
