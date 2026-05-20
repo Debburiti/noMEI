@@ -39,7 +39,7 @@ class ParticipacaoService:
         user = await self.user_repository.get_user_by_id(user_id)
 
         if not user or not user.get("cnpj"):
-            raise HTTPException(status_code=400, detail="Usuário não possui CNPJ cadastrado.")
+            raise HTTPException(status_code=404, detail="Usuário não possui CNPJ cadastrado.")
         
         cnpj = user.get("cnpj")
         raw_data = await self.repository.get_dashboard_resumo(cnpj=cnpj)

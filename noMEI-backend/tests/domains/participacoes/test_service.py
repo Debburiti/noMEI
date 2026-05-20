@@ -11,10 +11,10 @@ async def test_calculo_taxa_vitoria_matematicamente_correto():
     mock_dados_repositorio = {
         "total_participacoes": [{"total": 10}],
         "resumo_status": [
-            {"status": "winner", "total": 3},  
-            {"status": "closed", "total": 2},  
-            {"status": "open", "total": 4},    
-            {"status": "analysis", "total": 1} 
+            {"status": "winner", "total": 3, "processos_ids": ["id1", "id2", "id3"]},  
+            {"status": "closed", "total": 2, "processos_ids": ["id4", "id5"]},  
+            {"status": "open", "total": 4, "processos_ids": ["id6", "id7", "id8", "id9"]},    
+            {"status": "analysis", "total": 1, "processos_ids": ["id10"]} 
         ]
     }
 
@@ -41,7 +41,7 @@ async def test_prevencao_divisao_por_zero_sem_status_finalizados():
     mock_dados_repositorio = {
         "total_participacoes": [{"total": 8}],
         "resumo_status": [
-            {"status": "open", "total": 8}
+            {"status": "open", "total": 8, "processos_ids": ["id11", "id12", "id13", "id14", "id15", "id16", "id17", "id18"]}
         ]
     }
     mock_user = {"_id": "fake_user_123", "cnpj": "12345678000199"}
@@ -68,5 +68,5 @@ async def test_servico_rejeita_usuario_sem_cnpj():
     with pytest.raises(HTTPException) as exc_info:
         await servico.resumo_dashboard(user_id="fake_user_123")
         
-    assert exc_info.value.status_code == 400
+    assert exc_info.value.status_code == 404
     assert "não possui CNPJ" in exc_info.value.detail
