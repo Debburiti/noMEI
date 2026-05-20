@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from app.core.database import get_database
 
 
@@ -8,9 +8,6 @@ class ParticipacaoRepository:
         return get_database().get_collection("participacoes")
 
     async def get_dashboard_resumo(self, cnpj: str) -> dict[str, Any]:
-        """
-        Executa uma agregação no MongoDB para buscar o resumo do dashboard de um usuário.
-        """
         pipeline = [
             {"$match": {"cnpj": cnpj}},
             {
@@ -39,3 +36,13 @@ class ParticipacaoRepository:
         cursor = self.collection.aggregate(pipeline)
         result = await cursor.to_list(length=1)
         return result[0] if result else {}
+
+    async def listar_participacoes_por_cnpj(self, cnpj: str, status: Optional[str] = None) -> list[dict[str, Any]]:
+
+        query: dict[str, Any] = {"cnpj": cnpj}
+
+        if status:
+            query["status_proposta"] = status
+
+        cursor = self.collection.find(query)
+        return await cursor.to_list(length=None) 
