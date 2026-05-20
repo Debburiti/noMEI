@@ -24,6 +24,7 @@ TAGS_METADATA = [
     {"name": "Alertas", "description": "Alertas e notificações do MEI"},
     {"name": "Qualificação", "description": "Requisitos, elegibilidade e checklist de habilitação."},
     {"name": "Documentos", "description": "Upload, visualização e pendências dos arquivos exigidos"},
+    {"name": "Participações", "description": "Histórico e dashboard de participações em licitações"},
 ]
 
 @asynccontextmanager
