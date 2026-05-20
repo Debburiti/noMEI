@@ -37,7 +37,6 @@ const TAB_CONFIG: Record<TabName, TabConfig> = {
    },
 };
 
-//  Component
 export function CustomTabBar({
    state,
    descriptors,
@@ -86,7 +85,6 @@ export function CustomTabBar({
                   style={styles.tab}
                   activeOpacity={0.75}
                >
-                  {/* Pill ativo */}
                   <View
                      style={[
                         styles.iconWrapper,
@@ -102,7 +100,6 @@ export function CustomTabBar({
                      />
                   </View>
 
-                  {/* Label */}
                   <Text
                      style={[
                         styles.label,

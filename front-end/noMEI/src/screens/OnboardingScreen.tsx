@@ -26,7 +26,7 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
 
    function handleCreateAccount(): void {
       // TODO: Implement create account navigation
-      navigation.navigate("ProfileSetup");
+      navigation.navigate("CadastroIdentificacao");
    }
 
    function handleForgotPassword(): void {
@@ -40,7 +40,6 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
             showsVerticalScrollIndicator={false}
             bounces={false}
          >
-            {/* Logo */}
             <View style={styles.logoContainer}>
                <Text style={styles.logoText}>no</Text>
                <Text style={styles.logoTextBold}>MEI</Text>
@@ -55,10 +54,9 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
                />
             </View>
 
-            {/* Título Login */}
             <Text style={styles.loginTitle}>Login</Text>
 
-            {/* Formulário */}
+            {/* Formulário de autenticação */}
             <View style={styles.formContainer}>
                <Input
                   label="E-mail"
@@ -91,7 +89,6 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
                </TouchableOpacity>
             </View>
 
-            {/* Botões de Ação */}
             <View style={styles.buttonContainer}>
                <Button
                   label="Entrar"

@@ -1,6 +1,9 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
+import { CadastroIdentificacaoScreen } from "../screens/CadastroIdentificacaoScreen";
+import { CadastroSenhaScreen } from "../screens/CadastroSenhaScreen";
+import { CadastroSucessoScreen } from "../screens/CadastroSucessoScreen";
 import { ConfiguracaoPerfilScreen } from "../screens/ConfiguracaoPerfilScreen";
 import { DetalhesLicitacaoScreen } from "../screens/DetalhesLicitacaoScreen";
 import { AlertasScreen } from "../screens/AlertasScreen";
@@ -15,31 +18,48 @@ export function RootNavigator(): React.JSX.Element {
          initialRouteName="Onboarding"
          screenOptions={{ headerShown: false }}
       >
-         {/* Auth Flow */}
          <Stack.Screen
             name="Onboarding"
             component={OnboardingScreen}
             options={{ animation: "fade" }}
          />
+
+         <Stack.Screen
+            name="CadastroIdentificacao"
+            component={CadastroIdentificacaoScreen}
+            options={{ animation: "slide_from_right" }}
+         />
+
+         <Stack.Screen
+            name="CadastroSenha"
+            component={CadastroSenhaScreen}
+            options={{ animation: "slide_from_right" }}
+         />
+
+         <Stack.Screen
+            name="CadastroSucesso"
+            component={CadastroSucessoScreen}
+            options={{ animation: "fade" }}
+         />
+
          <Stack.Screen
             name="ProfileSetup"
             component={ConfiguracaoPerfilScreen}
             options={{ animation: "slide_from_right" }}
          />
 
-         {/* Main App */}
          <Stack.Screen
             name="MainTabs"
             component={TabNavigator}
             options={{ animation: "fade" }}
          />
 
-         {/*  Deep Screens (sem tab bar) */}
          <Stack.Screen
             name="DetalhesLicitacao"
             component={DetalhesLicitacaoScreen}
             options={{ animation: "slide_from_right" }}
          />
+         
          <Stack.Screen
             name="Alertas"
             component={AlertasScreen}

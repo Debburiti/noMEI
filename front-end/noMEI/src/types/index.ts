@@ -60,6 +60,13 @@ export interface Alert {
 
 export type RootStackParamList = {
   Onboarding: undefined;
+  CadastroIdentificacao: undefined;
+  CadastroSenha: {
+    nome: string;
+    email: string;
+    cpfCnpj: string;
+  };
+  CadastroSucesso: undefined;
   ProfileSetup: undefined;
   MainTabs: undefined;
   DetalhesLicitacao: {

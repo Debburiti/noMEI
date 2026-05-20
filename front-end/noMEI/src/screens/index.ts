@@ -1,5 +1,8 @@
 // Auth Flow
 export { OnboardingScreen } from "./OnboardingScreen";
+export { CadastroIdentificacaoScreen } from "./CadastroIdentificacaoScreen";
+export { CadastroSenhaScreen } from "./CadastroSenhaScreen";
+export { CadastroSucessoScreen } from "./CadastroSucessoScreen";
 export { ConfiguracaoPerfilScreen } from "./ConfiguracaoPerfilScreen";
 
 // Main Tabs
