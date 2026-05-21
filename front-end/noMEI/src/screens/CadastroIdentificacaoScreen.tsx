@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
    SafeAreaView,
    ScrollView,
@@ -20,10 +20,27 @@ export function CadastroIdentificacaoScreen({
    const [nome, setNome] = useState("");
    const [email, setEmail] = useState("");
    const [cpfCnpj, setCpfCnpj] = useState("");
-   const [currentStep, setCurrentStep] = useState(1);
+   const [cpfCnpjError, setCpfCnpjError] = useState("");
+   const [isCpfCnpjValid, setIsCpfCnpjValid] = useState(false);
+
+   useEffect(() => {
+      const onlyNumbers = cpfCnpj.replace(/\D/g, "");
+      const isValidCPF = onlyNumbers.length === 11;
+      const isValidCNPJ = onlyNumbers.length === 14;
+      
+      if (onlyNumbers.length > 0 && !isValidCPF && !isValidCNPJ) {
+         setCpfCnpjError("CPF ou CNPJ inválido");
+         setIsCpfCnpjValid(false);
+      } else {
+         setCpfCnpjError("");
+         setIsCpfCnpjValid(isValidCPF || isValidCNPJ);
+      }
+   }, [cpfCnpj]);
+
+   const isFormValid = nome && email && cpfCnpj && isCpfCnpjValid;
 
    function handleContinuar(): void {
-      if (nome && email && cpfCnpj) {
+      if (isFormValid) {
          navigation.navigate("CadastroSenha", {
             nome,
             email,
@@ -88,6 +105,7 @@ export function CadastroIdentificacaoScreen({
                   value={cpfCnpj}
                   onChangeText={setCpfCnpj}
                   keyboardType="numeric"
+                  error={cpfCnpjError}
                />
             </View>
 
@@ -98,6 +116,7 @@ export function CadastroIdentificacaoScreen({
                   variant="primary"
                   size="lg"
                   fullWidth
+                  disabled={!isFormValid}
                   rightIcon={
                      <Ionicons
                         name="arrow-forward"
