@@ -1,9 +1,3 @@
-/**
- * @file src/screens/DocumentosScreen.tsx
- * @description Gestão de Documentos — upload e listagem via API
- * 
- */
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
@@ -17,7 +11,6 @@ import type { MainTabScreenProps } from '../types';
 
 type Props = MainTabScreenProps<"Documentos">;
 
-// Mapeia status do backend para o tipo aceito pelo StatusBadge
 type BadgeStatus = 'pending' | 'sent' | 'error';
 function mapStatus(status: Documento['status']): BadgeStatus {
   if (status === 'valido') return 'sent';
@@ -73,7 +66,6 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
   setMenuVisible(true);
 }
 
-  // Web: usa input[type=file] nativo para garantir que o picker abra
   function handleWebFileChange(e: Event): void {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -90,7 +82,6 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
     }
 
     if (Platform.OS === 'web') {
-      // Cria um input temporário e dispara o click
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '*/*';
@@ -99,7 +90,6 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
       return;
     }
 
-    // Native: usa expo-document-picker
     const result = await DocumentPicker.getDocumentAsync({
       copyToCacheDirectory: true,
       multiple: false,
@@ -128,7 +118,6 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
          </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        {/* Upload area */}
         <View style={styles.uploadArea}>
           <View style={styles.uploadIconWrapper}>
             <Ionicons name="cloud-upload-outline" size={32} color={colors.primary} />
@@ -150,7 +139,6 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
           )}
         </View>
 
-        {/* Lista de documentos */}
         <Text style={styles.sectionTitle}>Seus Documentos</Text>
 
         {loadingList && (

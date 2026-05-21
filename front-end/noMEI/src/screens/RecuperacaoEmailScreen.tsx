@@ -12,23 +12,16 @@ import { Button, Input } from "../components";
 import { colors, spacing } from "../theme";
 import type { RootStackScreenProps } from "../types";
 
-type Props = RootStackScreenProps<"CadastroIdentificacao">;
+type Props = RootStackScreenProps<"RecuperacaoEmail">;
 
-export function CadastroIdentificacaoScreen({
+export function RecuperacaoEmailScreen({
    navigation,
 }: Props): React.JSX.Element {
-   const [nome, setNome] = useState("");
    const [email, setEmail] = useState("");
-   const [cpfCnpj, setCpfCnpj] = useState("");
-   const [currentStep, setCurrentStep] = useState(1);
 
    function handleContinuar(): void {
-      if (nome && email && cpfCnpj) {
-         navigation.navigate("CadastroSenha", {
-            nome,
-            email,
-            cpfCnpj,
-         });
+      if (email) {
+         navigation.navigate("RecuperacaoSenha", { email });
       }
    }
 
@@ -51,28 +44,21 @@ export function CadastroIdentificacaoScreen({
             showsVerticalScrollIndicator={false}
             bounces={false}
          >
-            <View style={styles.progressContainer}>
-               <View style={[styles.progressDot, styles.progressDotActive]} />
-               <View style={styles.progressLine} />
-               <View style={styles.progressDot} />
-               <View style={styles.progressLine} />
-               <View style={styles.progressDot} />
+            <View style={styles.iconContainer}>
+               <Ionicons
+                  name="lock-open-outline"
+                  size={48}
+                  color={colors.primary}
+               />
             </View>
 
-            <Text style={styles.title}>Crie sua conta</Text>
+            <Text style={styles.title}>Recuperar Acesso</Text>
             <Text style={styles.subtitle}>
-               Comece preenchendo seus dados básicos
+               Digite o e-mail associado à sua conta. Enviaremos um link para
+               redefinir sua senha.
             </Text>
 
             <View style={styles.formContainer}>
-               <Input
-                  label="Nome completo"
-                  placeholder="Digite seu nome completo"
-                  value={nome}
-                  onChangeText={setNome}
-                  autoCapitalize="words"
-               />
-
                <Input
                   label="E-mail"
                   placeholder="seu@email.com"
@@ -80,14 +66,6 @@ export function CadastroIdentificacaoScreen({
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
-               />
-
-               <Input
-                  label="CPF ou CNPJ"
-                  placeholder="000.000.000-00"
-                  value={cpfCnpj}
-                  onChangeText={setCpfCnpj}
-                  keyboardType="numeric"
                />
             </View>
 
@@ -98,15 +76,16 @@ export function CadastroIdentificacaoScreen({
                   variant="primary"
                   size="lg"
                   fullWidth
-                  rightIcon={
-                     <Ionicons
-                        name="arrow-forward"
-                        size={20}
-                        color={colors.white}
-                     />
-                  }
                />
             </View>
+
+            <TouchableOpacity
+               onPress={handleBackPress}
+               activeOpacity={0.7}
+               style={styles.backLink}
+            >
+               <Text style={styles.backLinkText}>Voltar para Login</Text>
+            </TouchableOpacity>
          </ScrollView>
       </SafeAreaView>
    );
@@ -134,40 +113,28 @@ const styles = StyleSheet.create({
       paddingHorizontal: spacing[6],
       paddingTop: spacing[6],
       paddingBottom: spacing[8],
+      flexGrow: 1,
+      justifyContent: "space-between",
    },
-   progressContainer: {
-      flexDirection: "row",
+   iconContainer: {
       alignItems: "center",
-      justifyContent: "center",
-      marginBottom: spacing[8],
-   },
-   progressDot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: "rgba(45, 91, 227, 0.2)",
-   },
-   progressDotActive: {
-      backgroundColor: colors.primary,
-   },
-   progressLine: {
-      width: 40,
-      height: 2,
-      backgroundColor: "rgba(45, 91, 227, 0.2)",
-      marginHorizontal: spacing[2],
+      marginBottom: spacing[6],
+      marginTop: spacing[4],
    },
    title: {
       fontSize: 28,
       fontWeight: "700",
       color: colors.dark,
       marginBottom: spacing[2],
+      textAlign: "center",
    },
    subtitle: {
       fontSize: 14,
       fontWeight: "400",
       color: "rgba(0, 0, 0, 0.6)",
-      marginBottom: spacing[6],
+      marginBottom: spacing[8],
       lineHeight: 20,
+      textAlign: "center",
    },
    formContainer: {
       gap: spacing[4],
@@ -175,5 +142,16 @@ const styles = StyleSheet.create({
    },
    buttonContainer: {
       width: "100%",
+      marginBottom: spacing[4],
+   },
+   backLink: {
+      alignItems: "center",
+      paddingVertical: spacing[3],
+   },
+   backLinkText: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.primary,
+      textDecorationLine: "underline",
    },
 });

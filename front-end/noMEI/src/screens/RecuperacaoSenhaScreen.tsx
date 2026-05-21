@@ -12,7 +12,7 @@ import { Button, Input, ValidationItem } from "../components";
 import { colors, spacing } from "../theme";
 import type { RootStackScreenProps } from "../types";
 
-type Props = RootStackScreenProps<"CadastroSenha">;
+type Props = RootStackScreenProps<"RecuperacaoSenha">;
 
 interface PasswordValidation {
    minLength: boolean;
@@ -20,10 +20,13 @@ interface PasswordValidation {
    hasSymbol: boolean;
 }
 
-export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Element {
-   const [senha, setSenha] = useState("");
+export function RecuperacaoSenhaScreen({
+   navigation,
+   route,
+}: Props): React.JSX.Element {
+   const [novaSenha, setNovaSenha] = useState("");
    const [confirmarSenha, setConfirmarSenha] = useState("");
-   const [showSenha, setShowSenha] = useState(false);
+   const [showNovaSenha, setShowNovaSenha] = useState(false);
    const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
    const [validation, setValidation] = useState<PasswordValidation>({
       minLength: false,
@@ -31,23 +34,23 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
       hasSymbol: false,
    });
 
-   const { nome, email, cpfCnpj } = route.params;
+   const { email } = route.params;
 
    useEffect(() => {
       setValidation({
-         minLength: senha.length >= 8,
-         hasNumber: /\d/.test(senha),
-         hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(senha),
+         minLength: novaSenha.length >= 8,
+         hasNumber: /\d/.test(novaSenha),
+         hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(novaSenha),
       });
-   }, [senha]);
+   }, [novaSenha]);
 
    const isValidPassword =
       validation.minLength && validation.hasNumber && validation.hasSymbol;
-   const passwordsMatch = senha === confirmarSenha && isValidPassword;
+   const passwordsMatch = novaSenha === confirmarSenha && isValidPassword;
 
-   function handleContinuar(): void {
+   function handleAlterarSenha(): void {
       if (passwordsMatch) {
-         navigation.navigate("CadastroSucesso");
+         navigation.navigate("Onboarding");
       }
    }
 
@@ -70,33 +73,30 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
             showsVerticalScrollIndicator={false}
             bounces={false}
          >
-            <View style={styles.progressContainer}>
-               <View style={styles.progressDotActive} />
-               <View style={styles.progressLine} />
-               <View style={[styles.progressDot, styles.progressDotActive]} />
-               <View style={styles.progressLine} />
-               <View style={styles.progressDot} />
-            </View>
-
-            <Text style={styles.title}>Crie sua senha</Text>
+            <Text style={styles.title}>Criar Nova Senha</Text>
             <Text style={styles.subtitle}>
-               Escolha uma senha forte para proteger seu acesso
+               Digite uma nova senha forte para proteger sua conta
             </Text>
+
+            <View style={styles.emailDisplay}>
+               <Ionicons name="mail-outline" size={18} color={colors.primary} />
+               <Text style={styles.emailText}>{email}</Text>
+            </View>
 
             <View style={styles.formContainer}>
                <Input
-                  label="SENHA"
-                  placeholder="Digite sua senha"
-                  value={senha}
-                  onChangeText={setSenha}
-                  secureTextEntry={!showSenha}
-                  rightIcon={showSenha ? "eye-off" : "eye"}
-                  onRightIconPress={() => setShowSenha(!showSenha)}
+                  label="NOVA SENHA"
+                  placeholder="Digite sua nova senha"
+                  value={novaSenha}
+                  onChangeText={setNovaSenha}
+                  secureTextEntry={!showNovaSenha}
+                  rightIcon={showNovaSenha ? "eye-off" : "eye"}
+                  onRightIconPress={() => setShowNovaSenha(!showNovaSenha)}
                />
 
                <Input
                   label="CONFIRMAR SENHA"
-                  placeholder="Repita sua senha"
+                  placeholder="Repita sua nova senha"
                   value={confirmarSenha}
                   onChangeText={setConfirmarSenha}
                   secureTextEntry={!showConfirmarSenha}
@@ -108,7 +108,9 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
             </View>
 
             <View style={styles.validationContainer}>
-               <Text style={styles.validationTitle}>Sua senha deve conter:</Text>
+               <Text style={styles.validationTitle}>
+                  Sua senha deve conter:
+               </Text>
 
                <ValidationItem
                   icon="checkmark-circle"
@@ -129,8 +131,8 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
 
             <View style={styles.buttonContainer}>
                <Button
-                  label="Finalizar Cadastro"
-                  onPress={handleContinuar}
+                  label="Alterar Senha"
+                  onPress={handleAlterarSenha}
                   variant="primary"
                   size="lg"
                   fullWidth
@@ -165,35 +167,12 @@ const styles = StyleSheet.create({
       paddingTop: spacing[6],
       paddingBottom: spacing[8],
    },
-   progressContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: spacing[8],
-   },
-   progressDot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: "rgba(45, 91, 227, 0.2)",
-   },
-   progressDotActive: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: colors.primary,
-   },
-   progressLine: {
-      width: 40,
-      height: 2,
-      backgroundColor: "rgba(45, 91, 227, 0.2)",
-      marginHorizontal: spacing[2],
-   },
    title: {
       fontSize: 28,
       fontWeight: "700",
       color: colors.dark,
       marginBottom: spacing[2],
+      textAlign: "center",
    },
    subtitle: {
       fontSize: 14,
@@ -201,6 +180,23 @@ const styles = StyleSheet.create({
       color: "rgba(0, 0, 0, 0.6)",
       marginBottom: spacing[6],
       lineHeight: 20,
+      textAlign: "center",
+   },
+   emailDisplay: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing[2],
+      backgroundColor: "rgba(45, 91, 227, 0.1)",
+      paddingHorizontal: spacing[4],
+      paddingVertical: spacing[3],
+      borderRadius: 8,
+      marginBottom: spacing[6],
+   },
+   emailText: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.primary,
+      flex: 1,
    },
    formContainer: {
       gap: spacing[4],

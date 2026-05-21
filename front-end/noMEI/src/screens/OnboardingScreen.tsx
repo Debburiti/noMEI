@@ -9,7 +9,7 @@ import {
    Image,
 } from "react-native";
 import { Button, Input } from "../components";
-import { colors, spacing, borderRadius, textPresets } from "../theme";
+import { colors, spacing } from "../theme";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"Onboarding">;
@@ -30,7 +30,7 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
    }
 
    function handleForgotPassword(): void {
-      // TODO: Implement forgot password navigation
+      navigation.navigate("RecuperacaoEmail");
    }
 
    return (
@@ -45,7 +45,6 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
                <Text style={styles.logoTextBold}>MEI</Text>
             </View>
 
-            {/* Imagem */}
             <View style={styles.imageContainer}>
                <Image
                   source={require("../../assets/noMEI.png")}
@@ -56,7 +55,6 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
 
             <Text style={styles.loginTitle}>Login</Text>
 
-            {/* Formulário de autenticação */}
             <View style={styles.formContainer}>
                <Input
                   label="E-mail"
@@ -77,7 +75,6 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
                   onRightIconPress={() => setShowPassword(!showPassword)}
                />
 
-               {/* Link Esqueci a Senha */}
                <TouchableOpacity
                   onPress={handleForgotPassword}
                   activeOpacity={0.7}

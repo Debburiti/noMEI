@@ -2,8 +2,6 @@ import { Platform, Linking } from 'react-native';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export type DocumentoStatus = 'pendente' | 'valido' | 'expirado';
 
 export interface Documento {
@@ -21,8 +19,6 @@ export interface DocumentoListResponse {
     items: Documento[];
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
-
 export async function uploadDocumento(
     cnpj: string,
     file: { uri: string; name: string; mimeType: string }
@@ -31,12 +27,10 @@ export async function uploadDocumento(
     formData.append('cnpj', cnpj);
 
     if (Platform.OS === 'web') {
-        // No web, o uri é um blob: URL criado via URL.createObjectURL
         const blobResponse = await fetch(file.uri);
         const blob = await blobResponse.blob();
         formData.append('file', blob, file.name);
     } else {
-        // No native, usa o formato do React Native
         formData.append('file', {
             uri: file.uri,
             name: file.name,
