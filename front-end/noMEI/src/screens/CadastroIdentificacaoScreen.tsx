@@ -19,9 +19,30 @@ export function CadastroIdentificacaoScreen({
 }: Props): React.JSX.Element {
    const [nome, setNome] = useState("");
    const [email, setEmail] = useState("");
+   const [emailError, setEmailError] = useState("");
+   const [isEmailValid, setIsEmailValid] = useState(false);
    const [cnpj, setCnpj] = useState("");
    const [cnpjError, setCnpjError] = useState("");
    const [isCnpjValid, setIsCnpjValid] = useState(false);
+
+   useEffect(() => {
+      if (email.length === 0) {
+         setEmailError("");
+         setIsEmailValid(false);
+         return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValid = emailRegex.test(email);
+
+      if (!isValid) {
+         setEmailError("E-mail inválido");
+         setIsEmailValid(false);
+      } else {
+         setEmailError("");
+         setIsEmailValid(true);
+      }
+   }, [email]);
 
    useEffect(() => {
       const onlyNumbers = cnpj.replace(/\D/g, "");
@@ -36,7 +57,7 @@ export function CadastroIdentificacaoScreen({
       }
    }, [cnpj]);
 
-   const isFormValid = nome && email && cnpj && isCnpjValid;
+   const isFormValid = nome && email && isEmailValid && cnpj && isCnpjValid;
 
    function handleContinuar(): void {
       if (isFormValid) {
@@ -96,6 +117,7 @@ export function CadastroIdentificacaoScreen({
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  error={emailError}
                />
 
                <Input
