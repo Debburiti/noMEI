@@ -19,32 +19,31 @@ export function CadastroIdentificacaoScreen({
 }: Props): React.JSX.Element {
    const [nome, setNome] = useState("");
    const [email, setEmail] = useState("");
-   const [cpfCnpj, setCpfCnpj] = useState("");
-   const [cpfCnpjError, setCpfCnpjError] = useState("");
-   const [isCpfCnpjValid, setIsCpfCnpjValid] = useState(false);
+   const [cnpj, setCnpj] = useState("");
+   const [cnpjError, setCnpjError] = useState("");
+   const [isCnpjValid, setIsCnpjValid] = useState(false);
 
    useEffect(() => {
-      const onlyNumbers = cpfCnpj.replace(/\D/g, "");
-      const isValidCPF = onlyNumbers.length === 11;
+      const onlyNumbers = cnpj.replace(/\D/g, "");
       const isValidCNPJ = onlyNumbers.length === 14;
       
-      if (onlyNumbers.length > 0 && !isValidCPF && !isValidCNPJ) {
-         setCpfCnpjError("CPF ou CNPJ inválido");
-         setIsCpfCnpjValid(false);
+      if (onlyNumbers.length > 0 && onlyNumbers.length !== 14) {
+         setCnpjError("CNPJ deve ter 14 dígitos");
+         setIsCnpjValid(false);
       } else {
-         setCpfCnpjError("");
-         setIsCpfCnpjValid(isValidCPF || isValidCNPJ);
+         setCnpjError("");
+         setIsCnpjValid(isValidCNPJ);
       }
-   }, [cpfCnpj]);
+   }, [cnpj]);
 
-   const isFormValid = nome && email && cpfCnpj && isCpfCnpjValid;
+   const isFormValid = nome && email && cnpj && isCnpjValid;
 
    function handleContinuar(): void {
       if (isFormValid) {
          navigation.navigate("CadastroSenha", {
             nome,
             email,
-            cpfCnpj,
+            cnpj,
          });
       }
    }
@@ -100,12 +99,12 @@ export function CadastroIdentificacaoScreen({
                />
 
                <Input
-                  label="CPF ou CNPJ"
-                  placeholder="000.000.000-00"
-                  value={cpfCnpj}
-                  onChangeText={setCpfCnpj}
+                  label="CNPJ"
+                  placeholder="00.000.000/0000-00"
+                  value={cnpj}
+                  onChangeText={setCnpj}
                   keyboardType="numeric"
-                  error={cpfCnpjError}
+                  error={cnpjError}
                />
             </View>
 
