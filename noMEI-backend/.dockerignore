@@ -11,7 +11,7 @@ build/
 .eggs/
 
 # Alembic (não copiar versions geradas localmente se quiser controle)
-# alembic/versions/  ← deixe comentado, você quer que as migrations vão junto
+# alembic/versions/  ← deixe comentado, você quer que test_auth_service_forgot_password.py migrations vão junto
 
 # Dev/IDE
 .env
