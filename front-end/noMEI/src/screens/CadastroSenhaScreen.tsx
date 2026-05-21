@@ -47,7 +47,7 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
 
    function handleContinuar(): void {
       if (passwordsMatch) {
-         navigation.navigate("CadastroConfirmacao", {
+         navigation.navigate("ProfileSetup", {
             nome,
             email,
             cpfCnpj,

@@ -57,17 +57,16 @@ export type RootStackParamList = {
     email: string;
     cpfCnpj: string;
   };
-  CadastroConfirmacao: {
-    nome: string;
-    email: string;
-    cpfCnpj: string;
-  };
   CadastroSucesso: undefined;
   RecuperacaoEmail: undefined;
   RecuperacaoSenha: {
     email: string;
   };
-  ProfileSetup: undefined;
+  ProfileSetup?: {
+    nome?: string;
+    email?: string;
+    cpfCnpj?: string;
+  };
   MainTabs: undefined;
   DetalhesLicitacao: {
     bidId: string;
