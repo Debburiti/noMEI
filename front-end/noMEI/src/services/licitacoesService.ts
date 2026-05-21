@@ -2,7 +2,7 @@ import type { Bid, BidStatus } from '../types';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
-// ─── API Response Types ───────────────────────────────────────────────────────
+// API Response Types
 
 interface LicitacaoItem {
     id: string;
@@ -34,7 +34,7 @@ export interface FetchLicitacoesParams {
     limit?: number;
 }
 
-// ─── Mapper ───────────────────────────────────────────────────────────────────
+// Mapper
 
 function mapToBid(item: LicitacaoItem): Bid {
     return {
@@ -50,7 +50,7 @@ function mapToBid(item: LicitacaoItem): Bid {
     };
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
+// Service 
 
 export async function fetchLicitacoes(
     params: FetchLicitacoesParams = {}

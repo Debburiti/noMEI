@@ -1,12 +1,3 @@
-/**
- * @file src/types/index.ts
- * @description Tipos globais do app noMEI.
- *
- * Contém:
- *  - Parâmetros de rota (RootStackParamList, MainTabParamList)
- *  - Tipos de domínio (BidStatus, DocumentStatus, Bid, Document)
- */
-
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -60,7 +51,22 @@ export interface Alert {
 
 export type RootStackParamList = {
   Onboarding: undefined;
-  ProfileSetup: undefined;
+  CadastroIdentificacao: undefined;
+  CadastroSenha: {
+    nome: string;
+    email: string;
+    cpfCnpj: string;
+  };
+  CadastroSucesso: undefined;
+  RecuperacaoEmail: undefined;
+  RecuperacaoSenha: {
+    email: string;
+  };
+  ProfileSetup?: {
+    nome?: string;
+    email?: string;
+    cpfCnpj?: string;
+  };
   MainTabs: undefined;
   DetalhesLicitacao: {
     bidId: string;

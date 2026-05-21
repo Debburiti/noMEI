@@ -1,5 +1,4 @@
 export const navigationMap = {
-   // Auth Flow
    onboarding_to_profileSetup: {
       from: "Onboarding",
       to: "ProfileSetup",
@@ -17,7 +16,6 @@ export const navigationMap = {
       description: "Usuário salva perfil → entra no app principal",
    },
 
-   // Main Tabs
    home_to_detalhes: {
       from: "Inicio",
       to: "DetalhesLicitacao",
@@ -34,7 +32,6 @@ export const navigationMap = {
       description: 'Usuário toca "Ver Detalhes" em uma disputa → abre detalhe',
    },
 
-   // Deep Screens
    detalhes_back: {
       from: "DetalhesLicitacao",
       to: "MainTabs",
