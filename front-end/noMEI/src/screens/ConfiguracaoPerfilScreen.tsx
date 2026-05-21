@@ -37,10 +37,14 @@ const GOV_BR_DATA = {
    cnae: "6201-5/00 — Desenvolvimento de programas de computador sob encomenda",
 };
 
-export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Element {
+export function ConfiguracaoPerfilScreen({ navigation, route }: Props): React.JSX.Element {
   const insets = useSafeAreaInsets();
   const { setSelectedAreas: saveToContext, setCnpj } = useProfile();
   const [selectedAreas, setSelectedAreas] = useState<string[]>(['tech', 'office']);
+
+  const { nome, email, cpfCnpj } = route.params || {};
+  const nameToDisplay = nome || GOV_BR_DATA.name;
+  const cnpjToDisplay = cpfCnpj || GOV_BR_DATA.cnpj;
 
    function toggleArea(id: string): void {
       setSelectedAreas((prev) =>
@@ -55,8 +59,13 @@ export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Eleme
       .map((area) => area.category as string);
     const labels = selected.map((area) => area.label);
     saveToContext(selectedAreas, categories, labels);
-    setCnpj(GOV_BR_DATA.cnpj);
-    navigation.navigate('MainTabs');
+    setCnpj(cnpjToDisplay);
+    
+    if (nome) {
+      navigation.navigate('CadastroSucesso');
+    } else {
+      navigation.navigate('MainTabs');
+    }
   }
 
    return (
@@ -97,13 +106,23 @@ export function ConfiguracaoPerfilScreen({ navigation }: Props): React.JSX.Eleme
                   <DataRow
                      icon="person-outline"
                      label="Nome"
-                     value={GOV_BR_DATA.name}
+                     value={nameToDisplay}
                   />
+                  {!!email && (
+                     <>
+                        <View style={styles.divider} />
+                        <DataRow
+                           icon="mail-outline"
+                           label="E-mail"
+                           value={email}
+                        />
+                     </>
+                  )}
                   <View style={styles.divider} />
                   <DataRow
                      icon="business-outline"
                      label="CNPJ"
-                     value={GOV_BR_DATA.cnpj}
+                     value={cnpjToDisplay}
                   />
                   <View style={styles.divider} />
                   <DataRow

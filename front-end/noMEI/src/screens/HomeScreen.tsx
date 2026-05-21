@@ -1,8 +1,3 @@
-/**
- * @file src/screens/HomeScreen.tsx
- * @description Dashboard Principal — busca + filtro por UF
- */
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -10,8 +5,7 @@ import {
    ScrollView,
    StyleSheet,
    Text,
-   TouchableOpacity,
-   View,
+   TouchableOpacity
 } from 'react-native';
 import { Header, BidCard, EmptyState, ErrorState, Input } from '../components';
 import { colors, spacing, textPresets } from '../theme';
@@ -61,7 +55,6 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
          return [];
       });
 
-      // Ordena: 100% primeiro, depois 50%
       return scored.sort((a, b) => b.compatibility - a.compatibility);
    }, [items, selectedCategories, selectedLabels]);
 
@@ -76,7 +69,6 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
             <Text style={styles.greeting}>Olá, João! 👋</Text>
             <Text style={styles.subtitle}>Bem-vindo ao seu painel de licitações.</Text>
 
-            {/* Busca + Filtro por UF */}
             <Input
                leftIcon="search-outline"
                placeholder="Buscar licitações..."

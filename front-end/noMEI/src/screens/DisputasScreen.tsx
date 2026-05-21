@@ -7,17 +7,14 @@ import {
    TouchableOpacity,
    View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import {
    Header,
-   StatusBadge,
-   Button,
    EmptyState,
    DisputaCard,
 } from "../components";
 import type { DisputaItem } from "../components";
-import { colors, spacing, borderRadius, shadows, textPresets } from "../theme";
-import type { MainTabScreenProps, BidStatus } from "../types";
+import { colors, spacing, borderRadius, textPresets } from "../theme";
+import type { MainTabScreenProps } from "../types";
 
 type Props = MainTabScreenProps<"Disputas">;
 type Tab = "open" | "closed";
@@ -60,7 +57,6 @@ export function DisputasScreen({ navigation }: Props): React.JSX.Element {
 
    return (
       <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
-         {/* Header — título centralizado + sino */}
          <Header
             variant="screen"
             title="Licitações"
@@ -68,14 +64,12 @@ export function DisputasScreen({ navigation }: Props): React.JSX.Element {
             onNotificationPress={() => {}}
          />
 
-         {/* Área de título + subtítulo */}
          <View style={styles.titleArea}>
             <Text style={styles.screenTitle}>Minhas Disputas</Text>
             <Text style={styles.screenSubtitle}>
                Acompanhe o andamento das suas participações.
             </Text>
 
-            {/* Abas com underline */}
             <View style={styles.tabsRow}>
                <TouchableOpacity
                   style={styles.tab}
@@ -111,11 +105,9 @@ export function DisputasScreen({ navigation }: Props): React.JSX.Element {
                   )}
                </TouchableOpacity>
             </View>
-            {/* Linha separadora completa */}
             <View style={styles.tabsDivider} />
          </View>
 
-         {/* Lista de disputas */}
          <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.content}
