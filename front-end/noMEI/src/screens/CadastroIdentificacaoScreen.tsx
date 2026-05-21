@@ -64,7 +64,7 @@ export function CadastroIdentificacaoScreen({
          navigation.navigate("CadastroSenha", {
             nome,
             email,
-            cnpj,
+            cpfCnpj: cnpj,
          });
       }
    }

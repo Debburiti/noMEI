@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { OnboardingScreen } from "../screens/OnboardingScreen";
 import { CadastroIdentificacaoScreen } from "../screens/CadastroIdentificacaoScreen";
 import { CadastroSenhaScreen } from "../screens/CadastroSenhaScreen";
+import { CadastroConfirmacaoScreen } from "../screens/CadastroConfirmacaoScreen";
 import { CadastroSucessoScreen } from "../screens/CadastroSucessoScreen";
 import { RecuperacaoEmailScreen } from "../screens/RecuperacaoEmailScreen";
 import { RecuperacaoSenhaScreen } from "../screens/RecuperacaoSenhaScreen";
@@ -42,6 +43,12 @@ export function RootNavigator(): React.JSX.Element {
                 name="CadastroSucesso"
                 component={CadastroSucessoScreen}
                 options={{ animation: "fade" }}
+            />
+
+            <Stack.Screen
+                name="CadastroConfirmacao"
+                component={CadastroConfirmacaoScreen}
+                options={{ animation: "slide_from_right" }}
             />
 
             <Stack.Screen

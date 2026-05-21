@@ -47,7 +47,11 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
 
    function handleContinuar(): void {
       if (passwordsMatch) {
-         navigation.navigate("CadastroSucesso");
+         navigation.navigate("CadastroConfirmacao", {
+            nome,
+            email,
+            cpfCnpj,
+         });
       }
    }
 
@@ -129,7 +133,7 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
 
             <View style={styles.buttonContainer}>
                <Button
-                  label="Finalizar Cadastro"
+                  label="Continuar"
                   onPress={handleContinuar}
                   variant="primary"
                   size="lg"
