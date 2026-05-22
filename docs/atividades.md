@@ -39,17 +39,19 @@
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
-| Sprint Retrospective / Planning | 11/05 | Toda a equipe | Gestão | ✅ |
-| Telas de Login, pop-up de notificação e Dashboard Resumido | [data] | Luis Facunde | front | 🏗️ |
-| Back-end da funcionalidade de autenticação e finalização das notificações | [data] | Débora Buriti | Back | 🏗️ |
-| Documentação de Segurança da Informação (O que será implementado e como)| [data] | Pedro Fernandes e Gustavo Lino | Gestão | 🏗️ |
-| Documentação de Cronograma de Atividades (Inicial) | [data] | Pedro Fernandes | Gestão | 🏗️ |
-| Segurança de dados (MongoDB) | [data] | Myllena Lins | Dados | 🏗️ |
-| Processamento em tempo real de dados (Apache Kafka e PySpark) | [data] | Myllena Lins | Dados | 🏗️ |
+| Sprint Retrospective / Planning | 11/05 e 18/05 | Toda a equipe | Gestão | ✅ |
+| Telas de Login, pop-up de notificação e Dashboard Resumido | 20/05 | Luis Facunde, Giulliano Muniz e Mirella Santana | front | ✅ |
+| Back-end Dashboard Resumido | 20/05 | Italo Vasconcelos | front | ✅ |
+| Back-end da funcionalidade de autenticação e finalização das notificações | 20/05 | Débora Buriti | Back | ✅ |
+| Documentação de Segurança da Informação (O que será implementado e como)| 20/05/2026 |  Gustavo Lino, Myllena Lins e Pedro Fernandes | Gestão | ✅ |
+| Documentação de Cronograma de Atividades (Inicial) | 20/05/2026 | Pedro Fernandes | Gestão | ✅ |
+| Segurança de dados (MongoDB) | 20/05/2026 | Myllena Lins | Dados | ✅ |
+| Processamento em tempo real de dados (Apache Kafka e PySpark) | 20/05/2026 | Myllena Lins | Dados | ✅ |
+| Ajustes no Upload de Documentos | 22/05/2026 | Débora Buriti | Back | ✅ |
 ---
 
 ## 🚩 Entrega 3 (Continuação do Desenvolvimento)
-**Período:** 26/05/2026 - 15/06/2026
+**Período:** 00/00/2026 - 00/00/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
@@ -62,7 +64,7 @@
 ---
 
 ## 🚩 Entrega 4 (Continuação do Desenvolvimento)
-**Período:** 26/05/2026 - 15/06/2026
+**Período:** 00/00/2026 - 00/00/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
@@ -75,7 +77,7 @@
 ---
 
 ## 🚩 Entrega 5 (Continuação do Desenvolvimento)
-**Período:** 26/05/2026 - 15/06/2026
+**Período:** 00/00/2026 - 00/00/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
