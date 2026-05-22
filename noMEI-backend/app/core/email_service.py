@@ -64,6 +64,9 @@ Equipe noMEI
         message.set_content(text_content)
         message.add_alternative(html_content, subtype="html")
 
+        if not settings.smtp_host or not settings.smtp_username:
+            return
+
         with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port) as smtp:
             smtp.login(settings.smtp_username, settings.smtp_password)
             smtp.send_message(message)
