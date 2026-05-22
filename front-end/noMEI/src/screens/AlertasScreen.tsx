@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Header, EmptyState } from "../components";
 import { colors, spacing, borderRadius, shadows, textPresets } from "../theme";
+import { fetchAlertas } from "../services/alertasService";
+import type { Alerta } from "../services/alertasService";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"Alertas">;
@@ -31,31 +33,28 @@ const ALERT_TYPE_CONFIG = {
    },
 };
 
-const MOCK_ALERTS = [
-   {
-      id: "1",
-      type: "new_bid" as const,
-      title: "Novo Edital compatível",
-      message: "Uma nova oportunidade foi aberta para o seu CNAE.",
-      date: "Agora",
-   },
-   {
-      id: "2",
-      type: "deadline" as const,
-      title: "Prazo se aproximando",
-      message: 'A licitação "Fornecimento de Material" vence em 3 dias.',
-      date: "2h atrás",
-   },
-   {
-      id: "3",
-      type: "status_change" as const,
-      title: "Proposta aprovada",
-      message: "Sua proposta para o pregão 45/2023 foi aprovada.",
-      date: "Ontem",
-   },
-];
-
 export function AlertasScreen({ navigation }: Props): React.JSX.Element {
+   const [alertas, setAlertas] = useState<Alerta[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState("");
+
+   const load = useCallback(async () => {
+      setLoading(true);
+      setError("");
+      try {
+         const data = await fetchAlertas();
+         setAlertas(data.items);
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao carregar notificações");
+      } finally {
+         setLoading(false);
+      }
+   }, []);
+
+   useEffect(() => {
+      void load();
+   }, [load]);
+
    return (
       <SafeAreaView style={styles.safeArea}>
          <Header
@@ -79,44 +78,63 @@ export function AlertasScreen({ navigation }: Props): React.JSX.Element {
 
             <Text style={styles.sectionTitle}>Recentes</Text>
 
-            {MOCK_ALERTS.length === 0 ? (
+            {loading && (
+               <ActivityIndicator
+                  size="large"
+                  color={colors.primary}
+                  style={styles.loader}
+               />
+            )}
+
+            {!loading && error ? (
+               <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle-outline" size={32} color={colors.error} />
+                  <Text style={styles.errorText}>{error}</Text>
+                  <TouchableOpacity onPress={load} style={styles.retryBtn}>
+                     <Text style={styles.retryText}>Tentar novamente</Text>
+                  </TouchableOpacity>
+               </View>
+            ) : null}
+
+            {!loading && !error && alertas.length === 0 && (
                <EmptyState
                   icon="notifications-off-outline"
                   title="Sem alertas"
                   description="Você será notificado de novas oportunidades e prazos aqui."
                />
-            ) : (
-               MOCK_ALERTS.map((alert) => {
-                  const config = ALERT_TYPE_CONFIG[alert.type];
-                  return (
-                     <View key={alert.id} style={styles.alertCard}>
-                        <View
-                           style={[
-                              styles.alertIcon,
-                              { backgroundColor: config.bg },
-                           ]}
-                        >
-                           <Ionicons
-                              name={config.icon}
-                              size={20}
-                              color={config.color}
-                           />
-                        </View>
-                        <View style={styles.alertContent}>
-                           <View style={styles.alertHeader}>
-                              <Text style={styles.alertTitle} numberOfLines={1}>
-                                 {alert.title}
-                              </Text>
-                              <Text style={styles.alertDate}>{alert.date}</Text>
-                           </View>
-                           <Text style={styles.alertMessage} numberOfLines={2}>
-                              {alert.message}
-                           </Text>
-                        </View>
-                     </View>
-                  );
-               })
             )}
+
+            {!loading && !error && alertas.map((alert) => {
+               const config = ALERT_TYPE_CONFIG[alert.type];
+               return (
+                  <View key={alert.id} style={[styles.alertCard, !alert.read && styles.alertCardUnread]}>
+                     <View
+                        style={[
+                           styles.alertIcon,
+                           { backgroundColor: config.bg },
+                        ]}
+                     >
+                        <Ionicons
+                           name={config.icon}
+                           size={20}
+                           color={config.color}
+                        />
+                     </View>
+                     <View style={styles.alertContent}>
+                        <View style={styles.alertHeader}>
+                           <Text style={styles.alertTitle} numberOfLines={1}>
+                              {alert.title}
+                           </Text>
+                           <Text style={styles.alertDate}>{alert.date}</Text>
+                        </View>
+                        <Text style={styles.alertMessage} numberOfLines={2}>
+                           {alert.message}
+                        </Text>
+                     </View>
+                     {!alert.read && <View style={styles.unreadDot} />}
+                  </View>
+               );
+            })}
          </ScrollView>
       </SafeAreaView>
    );
@@ -182,6 +200,40 @@ const styles = StyleSheet.create({
       padding: spacing[3],
       gap: spacing[3],
       ...shadows.sm,
+   },
+   alertCardUnread: {
+      backgroundColor: colors.primaryLight,
+   },
+   unreadDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+      marginTop: spacing[1],
+      flexShrink: 0,
+   },
+   loader: {
+      marginTop: spacing[8],
+   },
+   errorContainer: {
+      alignItems: "center",
+      gap: spacing[3],
+      marginTop: spacing[8],
+   },
+   errorText: {
+      ...textPresets.bodySm,
+      color: colors.error,
+      textAlign: "center",
+   },
+   retryBtn: {
+      paddingHorizontal: spacing[4],
+      paddingVertical: spacing[2],
+      backgroundColor: colors.primaryLight,
+      borderRadius: borderRadius.md,
+   },
+   retryText: {
+      ...textPresets.labelMd,
+      color: colors.primary,
    },
    alertIcon: {
       width: 40,
