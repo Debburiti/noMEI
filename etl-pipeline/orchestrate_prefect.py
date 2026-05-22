@@ -5,14 +5,17 @@ Responsável por:
 - Definir tarefas monitoráveis (@task)
 - Coordenar o fluxo de execução (@flow)
 - Adicionar logs e controle de falhas (retries)
-- Permitir execução manual e futura automação (schedule)
+- Permitir execução incremental automática
+- Possibilitar futura automação via agendamento
 
 Este módulo integra o pipeline ETL já existente com um orquestrador,
-possibilitando monitoramento e reexecução controlada.
+permitindo observabilidade, monitoramento e reexecução controlada.
 """
 
-from prefect import flow, task, get_run_logger
+from datetime import datetime, timedelta
+
 from dotenv import load_dotenv
+from prefect import flow, get_run_logger, task
 
 from config.settings import Settings
 from src.pipeline import ETLPipeline
@@ -20,29 +23,37 @@ from src.pipeline import ETLPipeline
 load_dotenv()
 
 
-@task(retries=3, retry_delay_seconds=10)
+@task(
+    name="run_etl",
+    retries=3,
+    retry_delay_seconds=10,
+)
 def run_etl(
     data_inicial: str,
     data_final: str,
     max_paginas: int | None = None,
 ) -> bool:
     """
-    Executa o pipeline ETL do PNCP como uma tarefa orquestrada.
+    Executa o pipeline ETL do PNCP como uma task monitorável.
 
     Args:
-        data_inicial (str): Data inicial no formato YYYYMMDD.
-        data_final (str): Data final no formato YYYYMMDD.
-        max_paginas (int | None): Limite de páginas para testes.
+        data_inicial (str):
+            Data inicial da extração no formato YYYYMMDD.
+
+        data_final (str):
+            Data final da extração no formato YYYYMMDD.
+
+        max_paginas (int | None):
+            Limite de páginas para testes e desenvolvimento.
 
     Returns:
-        bool: Indica se a execução foi bem-sucedida.
-
-    Funcionalidades:
-        - Executa o pipeline ETL completo
-        - Registra logs de execução
-        - Possui retry automático em caso de falha
+        bool:
+            True se execução concluída com sucesso.
     """
+
     logger = get_run_logger()
+
+    logger.info("Inicializando pipeline ETL")
 
     settings = Settings()
     pipeline = ETLPipeline(settings)
@@ -53,45 +64,96 @@ def run_etl(
         "max_paginas": max_paginas,
     }
 
-    logger.info("Iniciando execução do ETL")
+    logger.info(
+        "Parâmetros da execução: %s",
+        extract_params,
+    )
 
     result = pipeline.run(extract_params)
 
     logger.info("ETL finalizado")
-    logger.info(f"Sucesso: {result.sucesso}")
-    logger.info(f"Total transformado: {result.total_transformado}")
+    logger.info("Sucesso: %s", result.sucesso)
+    logger.info("Total extraído: %s", result.total_extraido)
+    logger.info("Total transformado: %s", result.total_transformado)
+    logger.info("Total inserido: %s", result.total_inserido)
+    logger.info("Total atualizado: %s", result.total_atualizado)
+    logger.info("Total erros: %s", result.total_erros)
 
     return result.sucesso
 
 
-@flow(name="ETL PNCP Flow", log_prints=True)
+@flow(
+    name="ETL PNCP Flow",
+    log_prints=True,
+)
 def etl_flow(
-    data_inicial: str = "20260507",
-    data_final: str = "20260508",
+    dias_retroativos: int = 1,
     max_paginas: int = 1,
 ) -> None:
     """
-    Define o fluxo orquestrado do ETL PNCP.
+    Define o fluxo orquestrado do pipeline ETL.
+
+    A pipeline executa de forma incremental automática:
+
+    - data_final = data atual
+    - data_inicial = data atual - dias_retroativos
 
     Args:
-        data_inicial (str): Data inicial da extração.
-        data_final (str): Data final da extração.
-        max_paginas (int): Limite de páginas para execução.
+        dias_retroativos (int):
+            Quantidade de dias retroativos para busca.
 
-    Fluxo:
-        1. Executa a task de ETL (run_etl)
-        2. Controla a ordem de execução
-        3. Permite monitoramento via Prefect
-
-    Este fluxo representa a camada de orquestração do pipeline.
+        max_paginas (int):
+            Limite de páginas para testes.
     """
-    run_etl(data_inicial, data_final, max_paginas)
+
+    logger = get_run_logger()
+
+    hoje = datetime.now()
+    data_inicio = hoje - timedelta(days=dias_retroativos)
+
+    data_final = hoje.strftime("%Y%m%d")
+    data_inicial = data_inicio.strftime("%Y%m%d")
+
+    logger.info(
+        "Iniciando execução incremental: %s → %s",
+        data_inicial,
+        data_final,
+    )
+
+    logger.info(
+        "Limite de páginas configurado: %s",
+        max_paginas,
+    )
+
+    run_etl(
+        data_inicial=data_inicial,
+        data_final=data_final,
+        max_paginas=max_paginas,
+    )
+
+    logger.info("Flow ETL PNCP finalizada com sucesso")
 
 
 if __name__ == "__main__":
     """
     Ponto de entrada para execução manual do fluxo.
 
-    Executa o ETL com parâmetros padrão.
+    Exemplos:
+
+    Execução padrão:
+        python orchestrate_prefect.py
+
+    Execução retroativa:
+        etl_flow(dias_retroativos=7)
+
+    Execução maior:
+        etl_flow(
+            dias_retroativos=3,
+            max_paginas=10,
+        )
     """
-    etl_flow()
+
+    etl_flow(
+        dias_retroativos=1,
+        max_paginas=1,
+    )
