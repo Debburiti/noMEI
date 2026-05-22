@@ -16,3 +16,6 @@ export {
   clearTokens,
 } from './authService';
 export type { TokenResponse } from './authService';
+
+export { fetchAlertas } from './alertasService';
+export type { Alerta, AlertaListResponse, AlertaType } from './alertasService';
