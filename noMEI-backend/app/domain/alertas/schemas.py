@@ -12,8 +12,14 @@ class AlertaResponse(BaseModel):
     message: str
     date: str
     read: bool
+    contratacao_id: str | None = None
 
 
 class AlertaListResponse(BaseModel):
     total: int
     items: list[AlertaResponse]
+
+
+class GerarAlertasResponse(BaseModel):
+    criados: int
+    message: str
