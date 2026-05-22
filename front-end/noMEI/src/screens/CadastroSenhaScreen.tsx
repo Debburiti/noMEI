@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Input, ValidationItem } from "../components";
 import { colors, spacing } from "../theme";
+import { register } from "../services";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"CadastroSenha">;
@@ -25,6 +26,8 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
    const [confirmarSenha, setConfirmarSenha] = useState("");
    const [showSenha, setShowSenha] = useState(false);
    const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState("");
    const [validation, setValidation] = useState<PasswordValidation>({
       minLength: false,
       hasNumber: false,
@@ -45,13 +48,17 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
       validation.minLength && validation.hasNumber && validation.hasSymbol;
    const passwordsMatch = senha === confirmarSenha && isValidPassword;
 
-   function handleContinuar(): void {
-      if (passwordsMatch) {
-         navigation.navigate("ProfileSetup", {
-            nome,
-            email,
-            cpfCnpj,
-         });
+   async function handleContinuar(): Promise<void> {
+      if (!passwordsMatch) return;
+      setError("");
+      setIsLoading(true);
+      try {
+         await register(email, senha);
+         navigation.navigate("CadastroSucesso");
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao criar conta");
+      } finally {
+         setIsLoading(false);
       }
    }
 
@@ -132,13 +139,16 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
             </View>
 
             <View style={styles.buttonContainer}>
+               {error ? (
+                  <Text style={styles.errorText}>{error}</Text>
+               ) : null}
                <Button
-                  label="Continuar"
+                  label={isLoading ? "Criando conta..." : "Continuar"}
                   onPress={handleContinuar}
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!passwordsMatch}
+                  disabled={!passwordsMatch || isLoading}
                />
             </View>
          </ScrollView>
@@ -221,5 +231,11 @@ const styles = StyleSheet.create({
    },
    buttonContainer: {
       width: "100%",
+   },
+   errorText: {
+      color: colors.error ?? '#dc2626',
+      fontSize: 14,
+      textAlign: "center",
+      marginBottom: spacing[3],
    },
 });

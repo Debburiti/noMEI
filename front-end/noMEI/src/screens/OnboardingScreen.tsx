@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+   ActivityIndicator,
    SafeAreaView,
    ScrollView,
    StyleSheet,
@@ -10,6 +11,7 @@ import {
 } from "react-native";
 import { Button, Input } from "../components";
 import { colors, spacing } from "../theme";
+import { login } from "../services";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"Onboarding">;
@@ -18,14 +20,29 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
    const [email, setEmail] = useState("");
    const [password, setPassword] = useState("");
    const [showPassword, setShowPassword] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState("");
 
-   function handleLogin(): void {
-      // TODO: Implement login logic
-      navigation.navigate("ProfileSetup");
+   async function handleLogin(): Promise<void> {
+      if (!email || !password) return;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+         setError('E-mail inválido');
+         return;
+      }
+      setError("");
+      setIsLoading(true);
+      try {
+         await login(email, password);
+         navigation.navigate("MainTabs");
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao fazer login");
+      } finally {
+         setIsLoading(false);
+      }
    }
 
    function handleCreateAccount(): void {
-      // TODO: Implement create account navigation
       navigation.navigate("CadastroIdentificacao");
    }
 
@@ -86,13 +103,18 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
                </TouchableOpacity>
             </View>
 
+            {error ? (
+               <Text style={styles.errorText}>{error}</Text>
+            ) : null}
+
             <View style={styles.buttonContainer}>
                <Button
-                  label="Entrar"
+                  label={isLoading ? "Entrando..." : "Entrar"}
                   onPress={handleLogin}
                   variant="primary"
                   size="lg"
                   fullWidth
+                  disabled={isLoading || !email || !password}
                />
 
                <Button
@@ -173,5 +195,11 @@ const styles = StyleSheet.create({
    buttonContainer: {
       width: "100%",
       gap: spacing[3],
+   },
+   errorText: {
+      color: colors.error ?? '#dc2626',
+      fontSize: 14,
+      textAlign: "center",
+      marginBottom: spacing[3],
    },
 });

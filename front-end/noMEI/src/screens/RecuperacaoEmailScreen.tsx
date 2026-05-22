@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Input } from "../components";
 import { colors, spacing } from "../theme";
+import { forgotPassword } from "../services";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"RecuperacaoEmail">;
@@ -18,10 +19,22 @@ export function RecuperacaoEmailScreen({
    navigation,
 }: Props): React.JSX.Element {
    const [email, setEmail] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState("");
+   const [sent, setSent] = useState(false);
 
-   function handleContinuar(): void {
-      if (email) {
+   async function handleContinuar(): Promise<void> {
+      if (!email) return;
+      setError("");
+      setIsLoading(true);
+      try {
+         await forgotPassword(email);
+         setSent(true);
          navigation.navigate("RecuperacaoSenha", { email });
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao enviar e-mail de recuperação");
+      } finally {
+         setIsLoading(false);
       }
    }
 
@@ -70,12 +83,16 @@ export function RecuperacaoEmailScreen({
             </View>
 
             <View style={styles.buttonContainer}>
+               {error ? (
+                  <Text style={styles.errorText}>{error}</Text>
+               ) : null}
                <Button
-                  label="Continuar"
+                  label={isLoading ? "Enviando..." : "Continuar"}
                   onPress={handleContinuar}
                   variant="primary"
                   size="lg"
                   fullWidth
+                  disabled={isLoading || !email}
                />
             </View>
 
@@ -153,5 +170,11 @@ const styles = StyleSheet.create({
       fontWeight: "500",
       color: colors.primary,
       textDecorationLine: "underline",
+   },
+   errorText: {
+      color: colors.error ?? '#dc2626',
+      fontSize: 14,
+      textAlign: "center",
+      marginBottom: spacing[3],
    },
 });
