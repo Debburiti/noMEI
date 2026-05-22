@@ -1,0 +1,149 @@
+const API_BASE_URL = 'http://localhost:8000/api/v1';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}
+
+// ─── Error translation ────────────────────────────────────────────────────────
+
+function translateError(msg: string): string {
+  const m = msg.toLowerCase();
+  if (m.includes('not a valid email') || m.includes('@-sign') || m.includes('email')) {
+    return 'E-mail inválido';
+  }
+  if (m.includes('min_length') || m.includes('at least 8') || m.includes('minimum')) {
+    return 'Senha deve ter no mínimo 8 caracteres';
+  }
+  if (m.includes('already') || m.includes('registrado') || m.includes('exists')) {
+    return 'E-mail já cadastrado';
+  }
+  if (m.includes('invalid credentials') || m.includes('incorrect') || m.includes('wrong')) {
+    return 'E-mail ou senha incorretos';
+  }
+  if (m.includes('not found')) {
+    return 'Conta não encontrada';
+  }
+  if (m.includes('expired') || m.includes('invalid token')) {
+    return 'Código inválido ou expirado';
+  }
+  return msg;
+}
+
+function parseApiError(data: unknown, fallback: string): string {
+  if (typeof data !== 'object' || data === null) return fallback;
+  const detail = (data as Record<string, unknown>).detail;
+  if (typeof detail === 'string') return translateError(detail);
+  if (Array.isArray(detail) && detail.length > 0) {
+    const first = detail[0];
+    if (typeof first === 'object' && first !== null && 'msg' in first) {
+      return translateError(String((first as Record<string, unknown>).msg));
+    }
+  }
+  return fallback;
+}
+
+// ─── In-memory token storage ──────────────────────────────────────────────────
+
+let _accessToken: string | null = null;
+let _refreshToken: string | null = null;
+
+export function storeTokens(tokens: TokenResponse): void {
+  _accessToken = tokens.access_token;
+  _refreshToken = tokens.refresh_token;
+}
+
+export function getAccessToken(): string | null {
+  return _accessToken;
+}
+
+export function getRefreshToken(): string | null {
+  return _refreshToken;
+}
+
+export function clearTokens(): void {
+  _accessToken = null;
+  _refreshToken = null;
+}
+
+// ─── Auth API calls ───────────────────────────────────────────────────────────
+
+export async function login(email: string, password: string): Promise<TokenResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(parseApiError(data, 'E-mail ou senha incorretos'));
+  }
+
+  const tokens: TokenResponse = await response.json();
+  storeTokens(tokens);
+  return tokens;
+}
+
+export async function register(email: string, password: string): Promise<TokenResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(parseApiError(data, 'Erro ao criar conta'));
+  }
+
+  const tokens: TokenResponse = await response.json();
+  storeTokens(tokens);
+  return tokens;
+}
+
+export async function refreshTokens(refreshToken: string): Promise<TokenResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!response.ok) {
+    clearTokens();
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  const tokens: TokenResponse = await response.json();
+  storeTokens(tokens);
+  return tokens;
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(parseApiError(data, 'Erro ao solicitar recuperação de senha'));
+  }
+}
+
+export async function resetPassword(token: string, new_password: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, new_password }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(parseApiError(data, 'Erro ao redefinir senha'));
+  }
+}

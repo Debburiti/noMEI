@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Input, ValidationItem } from "../components";
 import { colors, spacing } from "../theme";
+import { resetPassword } from "../services";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"RecuperacaoSenha">;
@@ -24,10 +25,13 @@ export function RecuperacaoSenhaScreen({
    navigation,
    route,
 }: Props): React.JSX.Element {
+   const [token, setToken] = useState("");
    const [novaSenha, setNovaSenha] = useState("");
    const [confirmarSenha, setConfirmarSenha] = useState("");
    const [showNovaSenha, setShowNovaSenha] = useState(false);
    const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState("");
    const [validation, setValidation] = useState<PasswordValidation>({
       minLength: false,
       hasNumber: false,
@@ -46,11 +50,19 @@ export function RecuperacaoSenhaScreen({
 
    const isValidPassword =
       validation.minLength && validation.hasNumber && validation.hasSymbol;
-   const passwordsMatch = novaSenha === confirmarSenha && isValidPassword;
+   const canSubmit = token.trim().length > 0 && novaSenha === confirmarSenha && isValidPassword;
 
-   function handleAlterarSenha(): void {
-      if (passwordsMatch) {
+   async function handleAlterarSenha(): Promise<void> {
+      if (!canSubmit) return;
+      setError("");
+      setIsLoading(true);
+      try {
+         await resetPassword(token.trim(), novaSenha);
          navigation.navigate("Onboarding");
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao redefinir senha");
+      } finally {
+         setIsLoading(false);
       }
    }
 
@@ -84,6 +96,15 @@ export function RecuperacaoSenhaScreen({
             </View>
 
             <View style={styles.formContainer}>
+               <Input
+                  label="CÓDIGO DE VERIFICAÇÃO"
+                  placeholder="Cole o código recebido por e-mail"
+                  value={token}
+                  onChangeText={setToken}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+               />
+
                <Input
                   label="NOVA SENHA"
                   placeholder="Digite sua nova senha"
@@ -130,13 +151,16 @@ export function RecuperacaoSenhaScreen({
             </View>
 
             <View style={styles.buttonContainer}>
+               {error ? (
+                  <Text style={styles.errorText}>{error}</Text>
+               ) : null}
                <Button
-                  label="Alterar Senha"
+                  label={isLoading ? "Alterando..." : "Alterar Senha"}
                   onPress={handleAlterarSenha}
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!passwordsMatch}
+                  disabled={!canSubmit || isLoading}
                />
             </View>
          </ScrollView>
@@ -213,5 +237,11 @@ const styles = StyleSheet.create({
    },
    buttonContainer: {
       width: "100%",
+   },
+   errorText: {
+      color: colors.error ?? '#dc2626',
+      fontSize: 14,
+      textAlign: "center",
+      marginBottom: spacing[3],
    },
 });
