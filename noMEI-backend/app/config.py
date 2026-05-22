@@ -29,12 +29,12 @@ class Settings(BaseSettings):
     # Frontend
     frontend_url: str = "http://localhost:3000"
 
-    # SMTP
-    smtp_host: str
+    # SMTP (optional — email features disabled if not set)
+    smtp_host: str | None = None
     smtp_port: int = 465
-    smtp_username: str
-    smtp_password: str
-    smtp_from_email: str
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
     smtp_from_name: str = "noMEI"
 
     @field_validator("mongodb_url")
