@@ -34,6 +34,19 @@ def create_refresh_token(subject: str | int) -> str:
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
 
+def create_password_reset_token(subject: str | int) -> str:
+    expire = datetime.now(UTC) + timedelta(minutes=15)
+    payload = {"sub": str(subject), "exp": expire, "type": "password_reset"}
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+
+
+def create_tokens(subject: str | int) -> dict:
+    return {
+        "access_token": create_access_token(subject),
+        "refresh_token": create_refresh_token(subject),
+        "token_type": "bearer",
+    }
+
+
 def decode_token(token: str) -> dict[str, Any]:
-    """Decodifica e valida o token. Lança JWTError em caso de falha."""
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])

@@ -1,11 +1,3 @@
-/**
- * @file src/screens/PerfilScreen.tsx
- * @placeholder — Perfil do Microempreendedor
- *
- * Sprint de implementação: Sprint 3
- * TODO: Edição de dados, notificações, assinatura e áreas de interesse.
- */
-
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -30,7 +22,6 @@ export function PerfilScreen({ navigation: _navigation }: Props): React.JSX.Elem
       <Header variant="default" notificationCount={0} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        {/* Avatar + dados */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarInitials}>JS</Text>
@@ -45,7 +36,6 @@ export function PerfilScreen({ navigation: _navigation }: Props): React.JSX.Elem
           </View>
         </View>
 
-        {/* Menu */}
         <View style={styles.menuCard}>
           {MENU_ITEMS.map((item, index) => (
             <React.Fragment key={item.id}>
@@ -64,7 +54,6 @@ export function PerfilScreen({ navigation: _navigation }: Props): React.JSX.Elem
           ))}
         </View>
 
-        {/* Logout */}
         <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7}>
           <Ionicons name="log-out-outline" size={18} color={colors.error} />
           <Text style={styles.logoutText}>Sair da conta</Text>

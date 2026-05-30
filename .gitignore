@@ -9,7 +9,3 @@ dist/
 build/
 .venv/
 venv/
-
-analytics_output/
-
-*.crc

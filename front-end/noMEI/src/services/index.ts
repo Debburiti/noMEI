@@ -1,13 +1,21 @@
-/**
- * @file src/services/index.ts
- * @description Barrel export de services do noMEI.
- *
- * Services a implementar nas sprints seguintes:
- *  - bidsService      → GET /licitacoes, GET /licitacoes/:id
- *  - documentsService → GET/POST /documentos
- *  - alertsService    → GET /alertas
- *  - authService      → POST /auth/login, GET /auth/me
- */
+export { fetchLicitacoes } from './licitacoesService';
+export type { FetchLicitacoesParams } from './licitacoesService';
 
-// Sprint 2+: services serão adicionados aqui
-export {};
+export { uploadDocumento, listarDocumentos } from './documentosService';
+export type { Documento, DocumentoStatus, DocumentoListResponse } from './documentosService';
+
+export {
+  login,
+  register,
+  refreshTokens,
+  forgotPassword,
+  resetPassword,
+  storeTokens,
+  getAccessToken,
+  getRefreshToken,
+  clearTokens,
+} from './authService';
+export type { TokenResponse } from './authService';
+
+export { fetchAlertas } from './alertasService';
+export type { Alerta, AlertaListResponse, AlertaType } from './alertasService';

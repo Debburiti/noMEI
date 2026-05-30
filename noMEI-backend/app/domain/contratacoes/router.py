@@ -7,9 +7,11 @@ from app.domain.contratacoes.service import ContratacaoService
 router = APIRouter()
 service = ContratacaoService()
 
-@router.get("/", response_model=ContratacaoListResponse)
+@router.get("/", response_model=ContratacaoListResponse, response_model_by_alias=False)
 async def listar_contratacoes(
-    uf: str | None = Query(None, description="Filtrar por UF"),
+    busca: str | None = Query(None, description="Busca por texto no objeto da compra"),
+    uf: str | None = Query(None, description="Filtrar por UF (ex: SP, MG, RJ)"),
+    cnae: str | None = Query(None, description="Filtrar por código CNAE (ex: 4120-4/00)"),
     modalidadeId: int | None = Query(None, description="Filtrar por ID da modalidade"),
     valorMax: float | None = Query(None, description="Valor máximo estimado"),
     meiCompativel: bool | None = Query(None, description="Apenas compatíveis com MEI"),
@@ -22,13 +24,15 @@ async def listar_contratacoes(
     return await service.listar_contratacoes(
         page=page,
         limit=limit,
+        busca=busca,
         uf=uf,
+        cnae=cnae,
         modalidade_id=modalidadeId,
         valor_max=valorMax,
         mei_compativel=meiCompativel
     )
 
-@router.get("/{numeroControlePNCP}", response_model=ContratacaoResponse)
+@router.get("/{numeroControlePNCP:path}", response_model=ContratacaoResponse, response_model_by_alias=False)
 async def obter_contratacao(numeroControlePNCP: str):
     """
     US-10 — Detalhe de uma contratação

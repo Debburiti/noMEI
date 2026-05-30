@@ -26,7 +26,17 @@ class PerfilRepository:
             doc["_id"] = str(doc["_id"])
         return doc
 
-    async def create_or_update(self, perfil_data: dict[Any, Any]) -> dict[Any, Any]:
+    async def get_by_user_id(self, user_id: str) -> dict[Any, Any] | None:
+        doc = await self.collection.find_one({"user_id": user_id})
+        if doc:
+            doc["_id"] = str(doc["_id"])
+        return doc
+
+    async def create_or_update(
+        self, perfil_data: dict[Any, Any], user_id: str
+    ) -> dict[Any, Any]:
+        perfil_data["user_id"] = user_id
+
         cnpj = perfil_data.get("cnpj")
         existing = await self.get_by_cnpj(cnpj)
 

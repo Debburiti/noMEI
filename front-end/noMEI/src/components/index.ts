@@ -1,29 +1,31 @@
-/**
- * @file src/components/index.ts
- * @description Barrel export de todos os componentes do noMEI.
- *
- * Uso: import { Button, BidCard, StatusBadge } from '../components';
- */
+export { Button } from "./Button";
+export type { ButtonProps } from "./Button";
 
-export { Button } from './Button';
-export type { ButtonProps } from './Button';
+export { Input } from "./Input";
+export type { InputProps } from "./Input";
 
-export { Input } from './Input';
-export type { InputProps } from './Input';
+export { ValidationItem } from "./ValidationItem";
+export type { ValidationItemProps } from "./ValidationItem";
 
-export { BidCard } from './Card';
-export type { BidCardProps } from './Card';
+export { BidCard } from "./Card";
+export type { BidCardProps } from "./Card";
 
-export { StatusBadge } from './StatusBadge';
-export type { StatusBadgeProps } from './StatusBadge';
+export { StatusBadge } from "./StatusBadge";
+export type { StatusBadgeProps } from "./StatusBadge";
 
-export { Header } from './Header';
+export { DisputaCard } from "./DisputaCard";
+export type { DisputaCardProps, DisputaItem } from "./DisputaCard";
 
-export { LoadingState } from './LoadingState';
-export type { LoadingStateProps } from './LoadingState';
+export { RecommendedCard } from "./RecommendedCard";
+export type { RecommendedCardProps, RecommendedBid } from "./RecommendedCard";
 
-export { EmptyState } from './EmptyState';
-export type { EmptyStateProps } from './EmptyState';
+export { Header } from "./Header";
 
-export { ErrorState } from './ErrorState';
-export type { ErrorStateProps } from './ErrorState';
+export { LoadingState } from "./LoadingState";
+export type { LoadingStateProps } from "./LoadingState";
+
+export { EmptyState } from "./EmptyState";
+export type { EmptyStateProps } from "./EmptyState";
+
+export { ErrorState } from "./ErrorState";
+export type { ErrorStateProps } from "./ErrorState";
