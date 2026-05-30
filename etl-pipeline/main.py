@@ -1,10 +1,10 @@
 """
 Ponto de entrada da aplicação ETL do PNCP.
 
-Exemplo de uso:
-    python main.py
-    python main.py --uf pe --modalidade 8
-    python main.py --data-inicial 20260401 --data-final 20260409 --uf sp
+Responsável por:
+- Processar argumentos de linha de comando
+- Validar entradas
+- Executar o pipeline ETL
 """
 
 import argparse
@@ -17,19 +17,21 @@ from src.pipeline import ETLPipeline
 
 
 def _configure_logging() -> None:
-    """Configura o sistema de logging com formato padronizado."""
+    """
+    Configura o sistema de logging.
+    """
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-        ],
+        handlers=[logging.StreamHandler(sys.stdout)],
     )
 
 
 def validar_data(data: str) -> str:
-    """Valida que a data está no formato YYYYMMDD."""
+    """
+    Valida formato de data YYYYMMDD.
+    """
     try:
         datetime.strptime(data, "%Y%m%d")
         return data
@@ -39,58 +41,69 @@ def validar_data(data: str) -> str:
         )
 
 
+def validar_intervalo(data_inicial: str | None, data_final: str) -> None:
+    """
+    Valida consistência entre datas.
+    """
+    df = datetime.strptime(data_final, "%Y%m%d")
+
+    if df > datetime.now():
+        raise ValueError("data_final não pode estar no futuro")
+
+    if data_inicial:
+        di = datetime.strptime(data_inicial, "%Y%m%d")
+
+        if di > df:
+            raise ValueError("data_inicial não pode ser maior que data_final")
+
+
 def _parse_args() -> argparse.Namespace:
     """
-    Analisa os argumentos de linha de comando.
-
-    Returns:
-        argparse.Namespace: Namespace com os argumentos parseados.
+    Analisa argumentos da linha de comando.
     """
     parser = argparse.ArgumentParser(
-        description="ETL — Coleta de Contratações/Propostas do PNCP para MongoDB Atlas"
+        description="ETL PNCP → MongoDB Atlas"
     )
 
     parser.add_argument(
         "--data-final",
         type=validar_data,
-        default="20260430",
-        metavar="YYYYMMDD",
-        help="Data final de encerramento de propostas (padrão: 20260430)",
+        default=datetime.now().strftime("%Y%m%d"),
+        help="Data final (YYYYMMDD)",
     )
 
     parser.add_argument(
         "--data-inicial",
         type=validar_data,
-        default=None,
-        metavar="YYYYMMDD",
-        help="Data inicial de encerramento de propostas (opcional)",
+        help="Data inicial (YYYYMMDD)",
     )
 
     parser.add_argument(
         "--uf",
-        default=None,
-        help="Sigla da UF para filtrar (ex: pe, sp, rj)",
+        help="UF (ex: PE, SP, RJ)",
     )
 
     parser.add_argument(
         "--modalidade",
         type=int,
-        default=None,
-        metavar="CODIGO",
-        help="Código da modalidade de contratação (ex: 8)",
+        help="Código da modalidade",
     )
 
     parser.add_argument(
         "--cnpj",
-        default=None,
-        help="CNPJ do órgão contratante (somente números)",
+        help="CNPJ do órgão",
     )
 
     parser.add_argument(
         "--municipio-ibge",
+        help="Código IBGE",
+    )
+
+    parser.add_argument(
+        "--max-paginas",
+        type=int,
         default=None,
-        metavar="CODIGO",
-        help="Código IBGE do município",
+        help="Limite de páginas (útil para testes e evitar cargas grandes)",
     )
 
     return parser.parse_args()
@@ -98,17 +111,25 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     """
-    Função principal — configura e executa o pipeline ETL.
-
-    Returns:
-        int: Código de saída (0 = sucesso, 1 = falha).
+    Função principal da aplicação.
     """
     _configure_logging()
     logger = logging.getLogger(__name__)
 
     args = _parse_args()
 
+    # 🔹 validação de datas
+    try:
+        validar_intervalo(args.data_inicial, args.data_final)
+    except ValueError as e:
+        logger.error("Erro de validação: %s", str(e))
+        return 1
+
+    # 🔹 normalização da UF
+    uf = args.uf.upper() if args.uf else None
+
     settings = Settings()
+
     try:
         settings.validate()
     except ValueError as exc:
@@ -118,13 +139,22 @@ def main() -> int:
     extract_params = {
         "data_final": args.data_final,
         "data_inicial": args.data_inicial,
-        "uf": args.uf,
+        "uf": uf,
         "codigo_modalidade": args.modalidade,
         "cnpj": args.cnpj,
         "codigo_municipio_ibge": args.municipio_ibge,
+        "max_paginas": args.max_paginas,
     }
-    # Remove parâmetros não fornecidos
-    extract_params = {k: v for k, v in extract_params.items() if v is not None}
+
+    # remove None
+    extract_params = {
+        k: v for k, v in extract_params.items() if v is not None
+    }
+
+    logger.info("Parâmetros finais: %s", extract_params)
+
+    if args.max_paginas:
+        logger.info("Execução limitada a %d página(s)", args.max_paginas)
 
     pipeline = ETLPipeline(settings)
     result = pipeline.run(extract_params)
