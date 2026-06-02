@@ -1,7 +1,7 @@
 # 🗓️ Cronograma de Atividades - noMEI
 
 > **Status Geral do Projeto:** 🟢 Em Dia
-> **Última Atualização:** 11/05/2026
+> **Última Atualização:** 01/06/2026
 
 
 ---
@@ -45,21 +45,28 @@
 | Back-end da funcionalidade de autenticação e finalização das notificações | 20/05 | Débora Buriti | Back | ✅ |
 | Documentação de Segurança da Informação (O que será implementado e como)| 20/05/2026 |  Gustavo Lino, Myllena Lins e Pedro Fernandes | Gestão | ✅ |
 | Documentação de Cronograma de Atividades (Inicial) | 20/05/2026 | Pedro Fernandes | Gestão | ✅ |
-| Segurança de dados (MongoDB) | 20/05/2026 | Myllena Lins | Dados | ✅ |
+| Segurança de dados (MongoDB) | 20/05/2026 | Myllena Lins | Dados | ✅ |                                                                                                                                                           
 | Processamento em tempo real de dados (Apache Kafka e PySpark) | 20/05/2026 | Myllena Lins | Dados | ✅ |
 | Ajustes no Upload de Documentos | 22/05/2026 | Débora Buriti | Back | ✅ |
+
 ---
 
-## 🚩 Entrega 3 (Continuação do Desenvolvimento)
-**Período:** 00/00/2026 - 00/00/2026
+## 🚩 Entrega 3 (Finalização do Desenvolvimento)
+**Período:** 25/05/2026 - 08/06/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
-| [atividade] | [data] | [Nome] | Front | 🔒 |
-| [atividade] | [data] | [Nome] | Back | 🔒 |
-| [atividade] | [data] | [Nome] | Full | 🔒 |
-| [atividade] | [data] | [Nome] | Dados | 🔒 |
-| [atividade] | [data] | [Nome] | QA | 🔒 |
+| Documentação de Segurança da Informação | 28/06 | Italo Vasconcelos | Gestão | ✅ |
+| Implementar Testes Unitários para domínios pendentes | [data] | Italo Vasconcelos | Back | 🏗️ |
+| Feedback de usabilidade/proposição de melhorias | [data] | Pedro Fernandes | Gestão | 🏗️ |
+| Userstories em formato .md na pasta /docs | [data] | Pedro Fernandes | Gestão | 🏗️ |
+| Implementar Servidor MCP e interface Streamlit para chatbot | [data] | Myllena Lins | Dados | 🏗️ |
+| Verificar e Ajustar upload de documentos | [data] | Mirella Santana | Full | 🏗️ |
+| Consertar Bugs de Integração | [data] | Giulliano Muniz | Full | 🏗️ |
+| Consolidação da documentação e evidências de testes | [data] | Giulliano Muniz, Luis Facunde, Débora Buriti, Italo Vasconcelos e Mirella Santana | Full | 🏗️ |
+| Screencast / Apresentação em Vídeo | [data] | [nome] | Gestão | 🏗️ |
+| Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | 🏗️ |
+| Documentação das Stacks Utilizadas de cada Disciplina | [data] | [nome] | Gestão | 🏗️ |
 
 ---
 
