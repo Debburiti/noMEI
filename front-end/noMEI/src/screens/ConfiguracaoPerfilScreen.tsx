@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components';
 import { colors, spacing, borderRadius, shadows, textPresets } from '../theme';
 import { useProfile } from '../context/ProfileContext';
+import { saveMinhaPerfil } from '../services/perfilService';
 import type { RootStackScreenProps } from '../types';
 
 type Props = RootStackScreenProps<"ProfileSetup">;
@@ -60,7 +61,11 @@ export function ConfiguracaoPerfilScreen({ navigation, route }: Props): React.JS
     const labels = selected.map((area) => area.label);
     saveToContext(selectedAreas, categories, labels);
     setCnpj(cnpjToDisplay);
-    
+
+    saveMinhaPerfil({ cnpj: cnpjToDisplay }).catch(() => {
+      // silently ignore — cnpj already set in context
+    });
+
     if (nome) {
       navigation.navigate('CadastroSucesso');
     } else {
