@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components';
 import { colors, spacing, borderRadius, shadows, textPresets } from '../theme';
+import { clearTokens } from '../services/authService';
 import type { MainTabScreenProps } from '../types';
 
 type Props = MainTabScreenProps<'Perfil'>;
@@ -16,7 +17,11 @@ const MENU_ITEMS = [
   { id: 'help', icon: 'help-circle-outline' as const, label: 'Ajuda e suporte', subtitle: 'FAQ, chat, termos' },
 ];
 
-export function PerfilScreen({ navigation: _navigation }: Props): React.JSX.Element {
+export function PerfilScreen({ navigation }: Props): React.JSX.Element {
+  function handleLogout(): void {
+    clearTokens();
+    navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+  }
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header variant="default" notificationCount={0} />
@@ -54,7 +59,7 @@ export function PerfilScreen({ navigation: _navigation }: Props): React.JSX.Elem
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={18} color={colors.error} />
           <Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
