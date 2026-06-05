@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict, Field
 class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
+    nome: str | None = None
 
 
 class UserLogin(BaseModel):
@@ -40,3 +41,4 @@ class UserResponse(BaseModel):
     id: str = Field(..., alias="_id")
     email: EmailStr
     is_active: bool
+    nome: str | None = None
