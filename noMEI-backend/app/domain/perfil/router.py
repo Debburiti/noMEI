@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends
 
 from app.core.dependencies import get_current_user
 from app.core.exceptions import NotFoundError
+from app.domain.auth.repository import UserRepository
 from app.domain.perfil.schemas import PerfilCreate, PerfilResponse
 from app.domain.perfil.service import PerfilService
 
 router = APIRouter()
 service = PerfilService()
+user_repository = UserRepository()
 
 
 @router.post("/", response_model=PerfilResponse)
@@ -30,6 +32,8 @@ async def obter_meu_perfil(
     perfil = await service.obter_perfil_por_user(user_id)
     if not perfil:
         raise NotFoundError("Perfil não encontrado")
+    user = await user_repository.get_by_id(user_id)
+    perfil["nome"] = user.get("nome") if user else None
     return perfil
 
 
