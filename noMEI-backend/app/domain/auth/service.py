@@ -20,13 +20,14 @@ class AuthService:
         self.repository = UserRepository()
         self.email_service = EmailService()
 
-    async def registrar(self, email: str, password: str) -> dict:
+    async def registrar(self, email: str, password: str, nome: str | None = None) -> dict:
         if await self.repository.get_by_email(email):
             raise ValueError("Email já cadastrado")
 
         user_data = {
             "email": email,
             "password_hash": hash_password(password),
+            "nome": nome,
             "created_at": datetime.now(UTC),
             "is_active": True,
             "reset_password_token_hash": None,
