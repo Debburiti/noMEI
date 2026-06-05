@@ -53,7 +53,7 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
       setError("");
       setIsLoading(true);
       try {
-         await register(email, senha);
+         await register(email, senha, nome);
          navigation.navigate("CadastroSucesso");
       } catch (err) {
          setError(err instanceof Error ? err.message : "Erro ao criar conta");

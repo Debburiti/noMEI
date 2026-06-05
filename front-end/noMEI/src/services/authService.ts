@@ -88,11 +88,11 @@ export async function login(email: string, password: string): Promise<TokenRespo
   return tokens;
 }
 
-export async function register(email: string, password: string): Promise<TokenResponse> {
+export async function register(email: string, password: string, nome?: string): Promise<TokenResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, nome }),
   });
 
   if (!response.ok) {
