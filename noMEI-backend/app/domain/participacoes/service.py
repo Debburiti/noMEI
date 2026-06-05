@@ -34,7 +34,7 @@ class ParticipacaoService:
         return (total_vitorias / total_finalizadas) if total_finalizadas > 0 else 0.0
         
     async def _validar_e_extrair_cnpj(self, user_id: str) -> str:
-        user = await self.user_repository.get_user_by_id(user_id)
+        user = await self.user_repository.get_by_id(user_id)
 
         if not user or not user.get("cnpj"):
             raise HTTPException(
