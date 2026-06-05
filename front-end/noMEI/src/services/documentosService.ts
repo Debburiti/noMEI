@@ -1,6 +1,13 @@
 import { Platform, Linking } from 'react-native';
+import { getAccessToken } from './authService';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
+
+function authHeaders(): Record<string, string> {
+    const token = getAccessToken();
+    if (!token) throw new Error('Usuário não autenticado');
+    return { Authorization: `Bearer ${token}` };
+}
 
 export type DocumentoStatus = 'pendente' | 'valido' | 'expirado';
 
@@ -40,6 +47,7 @@ export async function uploadDocumento(
 
     const response = await fetch(`${API_BASE_URL}/documentos/`, {
         method: 'POST',
+        headers: authHeaders(),
         body: formData,
     });
 
@@ -53,7 +61,8 @@ export async function uploadDocumento(
 
 export async function listarDocumentos(cnpj: string): Promise<DocumentoListResponse> {
     const response = await fetch(
-        `${API_BASE_URL}/documentos/?cnpj=${encodeURIComponent(cnpj)}`
+        `${API_BASE_URL}/documentos/?cnpj=${encodeURIComponent(cnpj)}`,
+        { headers: authHeaders() }
     );
 
     if (!response.ok) {
@@ -85,6 +94,7 @@ export async function deletarDocumento(id: string): Promise<void> {
         `${API_BASE_URL}/documentos/${id}`,
         {
             method: 'DELETE',
+            headers: authHeaders(),
         }
     );
 

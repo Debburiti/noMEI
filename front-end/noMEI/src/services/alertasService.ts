@@ -13,6 +13,7 @@ export interface Alerta {
   message: string;
   date: string;
   read: boolean;
+  contratacao_id?: string | null;
 }
 
 export interface AlertaListResponse {
@@ -24,16 +25,11 @@ export interface AlertaListResponse {
 
 export async function fetchAlertas(): Promise<AlertaListResponse> {
   const token = getAccessToken();
+  if (!token) throw new Error('Usuário não autenticado');
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_BASE_URL}/alertas/`, { headers });
+  const response = await fetch(`${API_BASE_URL}/alertas/`, {
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
 
   if (!response.ok) {
     throw new Error('Erro ao carregar notificações');

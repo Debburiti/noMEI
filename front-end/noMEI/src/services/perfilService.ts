@@ -11,6 +11,7 @@ export interface PerfilResponse {
     palavras_chave: string[];
     notificacoes: boolean;
     user_id?: string | null;
+    nome?: string | null;
 }
 
 export interface PerfilCreate {
