@@ -58,14 +58,14 @@
 |:---|:---:|:---|:---:|:---:|
 | Documentação de Segurança da Informação | 28/06 | Italo Vasconcelos | Gestão | ✅ |
 | Implementar Testes Unitários para domínios pendentes | [data] | Italo Vasconcelos | Back | 🏗️ |
-| Feedback de usabilidade/proposição de melhorias | [data] | Pedro Fernandes | Gestão | 🏗️ |
-| Userstories em formato .md na pasta /docs | [data] | Pedro Fernandes | Gestão | 🏗️ |
+| Feedback de usabilidade/proposição de melhorias | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
+| Userstories em formato .md na pasta /docs | 03/06/2026 | Pedro Fernandes | Gestão | ✅ |
 | Implementar Servidor MCP e interface Streamlit para chatbot | [data] | Myllena Lins | Dados | 🏗️ |
-| Verificar e Ajustar upload de documentos | [data] | Mirella Santana | Full | 🏗️ |
-| Consertar Bugs de Integração | [data] | Giulliano Muniz | Full | 🏗️ |
+| Verificar e Ajustar upload de documentos | [data] | Mirella Santana | Full | ✅ |
+| Consertar Bugs de Integração | [data] | Giulliano Muniz | Full | ✅ |
 | Consolidação da documentação e evidências de testes | [data] | Giulliano Muniz, Luis Facunde, Débora Buriti, Italo Vasconcelos e Mirella Santana | Full | 🏗️ |
-| Screencast / Apresentação em Vídeo | [data] | [nome] | Gestão | 🏗️ |
-| Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | 🏗️ |
+| Screencast / Apresentação em Vídeo | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
+| Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | 🏗️ | 
 | Documentação das Stacks Utilizadas de cada Disciplina | [data] | [nome] | Gestão | 🏗️ |
 
 ---
