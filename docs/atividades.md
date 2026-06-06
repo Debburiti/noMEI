@@ -1,7 +1,7 @@
 # 🗓️ Cronograma de Atividades - noMEI
 
 > **Status Geral do Projeto:** 🟢 Em Dia
-> **Última Atualização:** 01/06/2026
+> **Última Atualização:** 05/06/2026
 
 
 ---
@@ -66,7 +66,7 @@
 | Consolidação da documentação e evidências de testes | [data] | Giulliano Muniz, Luis Facunde, Débora Buriti, Italo Vasconcelos e Mirella Santana | Full | 🏗️ |
 | Screencast / Apresentação em Vídeo | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
 | Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | 🏗️ | 
-| Documentação das Stacks Utilizadas de cada Disciplina | [data] | [nome] | Gestão | 🏗️ |
+| Documentação das Stacks Utilizadas de cada Disciplina | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
 
 ---
 
