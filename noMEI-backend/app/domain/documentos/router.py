@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import Response
 
 from app.core.dependencies import get_current_user
@@ -8,17 +8,26 @@ from app.domain.documentos.schemas import (
     DocumentoStatusUpdate,
 )
 from app.domain.documentos.service import DocumentoService
+from app.domain.perfil.repository import PerfilRepository
 
 router = APIRouter()
 service = DocumentoService()
+perfil_repository = PerfilRepository()
+
+
+async def _get_cnpj_do_usuario(user_id: str) -> str:
+    perfil = await perfil_repository.get_by_user_id(user_id)
+    if not perfil or not perfil.get("cnpj"):
+        raise HTTPException(status_code=403, detail="Perfil com CNPJ não encontrado. Cadastre seu perfil primeiro.")
+    return perfil["cnpj"]
 
 
 @router.post("/", response_model=DocumentoResponse, status_code=201)
 async def upload_documento(
-    cnpj: str = Form(..., description="CNPJ do MEI"),
     file: UploadFile = File(..., description="Arquivo do documento"),
-    _: str = Depends(get_current_user),
+    user_id: str = Depends(get_current_user),
 ):
+    cnpj = await _get_cnpj_do_usuario(user_id)
     conteudo = await file.read()
     return await service.upload(
         cnpj=cnpj,
@@ -30,9 +39,9 @@ async def upload_documento(
 
 @router.get("/", response_model=DocumentoListResponse)
 async def listar_documentos(
-    cnpj: str = Query(..., description="CNPJ do MEI"),
-    _: str = Depends(get_current_user),
+    user_id: str = Depends(get_current_user),
 ):
+    cnpj = await _get_cnpj_do_usuario(user_id)
     return await service.listar(cnpj)
 
 

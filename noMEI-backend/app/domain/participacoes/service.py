@@ -60,7 +60,7 @@ class ParticipacaoService:
     async def listar_participacoes(self, user_id: str, status: Optional[str] = None
     ) -> ParticipacaoListResponse:
         cnpj = await self._validar_e_extrair_cnpj(user_id)
-        raw_items = await self.repository.list_by_cnpj(cnpj=cnpj, status=status)
+        raw_items = await self.repository.listar_participacoes_por_cnpj(cnpj=cnpj, status=status)
 
         items = [
             ParticipacaoListItem(
