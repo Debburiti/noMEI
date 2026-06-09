@@ -38,10 +38,7 @@ async def obter_meu_perfil(
 
 
 @router.get("/{id}", response_model=PerfilResponse)
-async def obter_perfil(id: str):
-    """
-    Busca perfil por ID — uso interno/admin (sem autenticação por enquanto)
-    """
+async def obter_perfil(id: str, _: str = Depends(get_current_user)):
     perfil = await service.obter_perfil(id)
     if not perfil:
         raise NotFoundError("Perfil não encontrado")

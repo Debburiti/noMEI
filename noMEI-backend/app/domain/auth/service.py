@@ -40,6 +40,8 @@ class AuthService:
         user = await self.repository.get_by_email(email)
         if not user or not verify_password(password, user["password_hash"]):
             raise ValueError("Credenciais inválidas")
+        if not user.get("is_active", True):
+            raise ValueError("Conta desativada")
 
         return create_tokens(user["_id"])
 
@@ -53,7 +55,10 @@ class AuthService:
             raise ValueError("Token inválido ou expirado")
 
         user_id = payload.get("sub")
-        if not user_id or not await self.repository.get_by_id(user_id):
+        user = await self.repository.get_by_id(user_id) if user_id else None
+        if not user:
+            raise ValueError("Token inválido ou expirado")
+        if not user.get("is_active", True):
             raise ValueError("Token inválido ou expirado")
 
         return create_tokens(user_id)
