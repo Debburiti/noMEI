@@ -8,6 +8,13 @@ export interface TokenResponse {
   token_type: string;
 }
 
+export interface UserResponse {
+  id: string;
+  email: string;
+  is_active: boolean;
+  nome: string | null;
+}
+
 // ─── Error translation ────────────────────────────────────────────────────────
 
 function translateError(msg: string): string {
@@ -146,4 +153,19 @@ export async function resetPassword(token: string, new_password: string): Promis
     const data = await response.json().catch(() => ({}));
     throw new Error(parseApiError(data, 'Erro ao redefinir senha'));
   }
+}
+
+export async function getMe(): Promise<UserResponse> {
+  const token = getAccessToken();
+  if (!token) throw new Error('Usuário não autenticado');
+
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar dados do usuário');
+  }
+
+  return response.json();
 }

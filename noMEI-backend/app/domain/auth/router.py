@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.core.dependencies import get_current_user
 from app.domain.auth.schemas import (
     ForgotPasswordRequest,
     MessageResponse,
@@ -8,6 +9,7 @@ from app.domain.auth.schemas import (
     TokenResponse,
     UserCreate,
     UserLogin,
+    UserResponse,
 )
 from app.domain.auth.service import AuthService
 
@@ -50,3 +52,11 @@ async def reset_password(body: ResetPasswordRequest):
         return await service.reset_password(body.token, body.new_password)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_me(user_id: str = Depends(get_current_user)):
+    user = await service.repository.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return user
