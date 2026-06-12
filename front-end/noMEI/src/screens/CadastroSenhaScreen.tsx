@@ -26,6 +26,7 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
    const [confirmarSenha, setConfirmarSenha] = useState("");
    const [showSenha, setShowSenha] = useState(false);
    const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+   const [lgpdAccepted, setLgpdAccepted] = useState(false);
    const [isLoading, setIsLoading] = useState(false);
    const [error, setError] = useState("");
    const [validation, setValidation] = useState<PasswordValidation>({
@@ -47,13 +48,14 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
    const isValidPassword =
       validation.minLength && validation.hasNumber && validation.hasSymbol;
    const passwordsMatch = senha === confirmarSenha && isValidPassword;
+   const isFormValid = passwordsMatch && lgpdAccepted;
 
    async function handleContinuar(): Promise<void> {
-      if (!passwordsMatch) return;
+      if (!isFormValid) return;
       setError("");
       setIsLoading(true);
       try {
-         await register(email, senha, nome);
+         await register(email, senha, nome, lgpdAccepted);
          navigation.navigate("CadastroSucesso");
       } catch (err) {
          setError(err instanceof Error ? err.message : "Erro ao criar conta");
@@ -138,6 +140,25 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
                />
             </View>
 
+            <TouchableOpacity
+               style={styles.lgpdContainer}
+               onPress={() => setLgpdAccepted(!lgpdAccepted)}
+               activeOpacity={0.7}
+            >
+               <View style={[styles.checkbox, lgpdAccepted && styles.checkboxChecked]}>
+                  {lgpdAccepted && (
+                     <Ionicons name="checkmark" size={14} color={colors.white} />
+                  )}
+               </View>
+               <Text style={styles.lgpdText}>
+                  Li e aceito a{" "}
+                  <Text style={styles.lgpdLink}>Política de Privacidade</Text>
+                  {" "}e os{" "}
+                  <Text style={styles.lgpdLink}>Termos de Uso</Text>
+                  {", conforme a LGPD (Lei nº 13.709/2018)"}
+               </Text>
+            </TouchableOpacity>
+
             <View style={styles.buttonContainer}>
                {error ? (
                   <Text style={styles.errorText}>{error}</Text>
@@ -148,7 +169,7 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!passwordsMatch || isLoading}
+                  disabled={!isFormValid || isLoading}
                />
             </View>
          </ScrollView>
@@ -228,6 +249,37 @@ const styles = StyleSheet.create({
       fontWeight: "600",
       color: colors.dark,
       marginBottom: spacing[3],
+   },
+   lgpdContainer: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      marginBottom: spacing[6],
+      gap: spacing[3],
+   },
+   checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 1,
+      flexShrink: 0,
+   },
+   checkboxChecked: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+   },
+   lgpdText: {
+      flex: 1,
+      fontSize: 13,
+      color: colors.textSecondary,
+      lineHeight: 20,
+   },
+   lgpdLink: {
+      color: colors.primary,
+      fontWeight: "600",
    },
    buttonContainer: {
       width: "100%",

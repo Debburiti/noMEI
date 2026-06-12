@@ -20,7 +20,7 @@ service = AuthService()
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: UserCreate):
     try:
-        return await service.registrar(body.email, body.password, body.nome)
+        return await service.registrar(body.email, body.password, body.nome, body.lgpd_accepted)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
