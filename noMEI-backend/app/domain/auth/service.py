@@ -20,7 +20,7 @@ class AuthService:
         self.repository = UserRepository()
         self.email_service = EmailService()
 
-    async def registrar(self, email: str, password: str, nome: str | None = None) -> dict:
+    async def registrar(self, email: str, password: str, nome: str | None = None, lgpd_accepted: bool = False) -> dict:
         if await self.repository.get_by_email(email):
             raise ValueError("Email já cadastrado")
 
@@ -30,6 +30,7 @@ class AuthService:
             "nome": nome,
             "created_at": datetime.now(UTC),
             "is_active": True,
+            "lgpd_accepted_at": datetime.now(UTC) if lgpd_accepted else None,
             "reset_password_token_hash": None,
             "reset_password_expires_at": None,
         }
