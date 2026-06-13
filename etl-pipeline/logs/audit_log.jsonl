@@ -1,0 +1,36 @@
+{"timestamp": "2026-06-09T14:54:58.493335+00:00", "event": "etl_started", "details": {"source": "PNCP", "params": {"data_final": "20260609"}}}
+{"timestamp": "2026-06-09T22:58:53.663039+00:00", "event": "stream_pipeline_started", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T22:59:03.849016+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:02:37.071774+00:00", "event": "stream_pipeline_finished", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:12:04.737535+00:00", "event": "stream_pipeline_started", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:12:06.649406+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:12:06.694637+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:12:06.738782+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:12:06.783358+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:12:17.540488+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:13:12.492516+00:00", "event": "stream_pipeline_finished", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:17:47.698135+00:00", "event": "stream_pipeline_started", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:17:49.411154+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:17:49.456924+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:17:49.502008+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:17:49.548728+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:17:49.603344+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:18:15.727491+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:22:46.331305+00:00", "event": "stream_pipeline_finished", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:31:16.004772+00:00", "event": "stream_pipeline_started", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-09T23:31:18.020139+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:31:18.079483+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:31:18.139339+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:31:18.198563+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:31:18.262204+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:31:18.323211+00:00", "event": "stream_record_processed", "details": {"id": "TESTE001", "inserted": 0, "modified": 1}}
+{"timestamp": "2026-06-09T23:42:01.094219+00:00", "event": "stream_pipeline_finished", "details": {"topic": "pncp_contratacoes"}}
+{"timestamp": "2026-06-10T10:49:15.747629+00:00", "event": "etl_started", "details": {"source": "PNCP", "params": {"data_inicial": "20260609", "data_final": "20260610", "max_paginas": 1}}}
+{"timestamp": "2026-06-10T10:51:52.190640+00:00", "event": "etl_finished", "details": {"extraidos": 20, "transformados": 20, "inseridos": 20, "atualizados": 0, "erros": 0, "sucesso": true}}
+{"timestamp": "2026-06-13T02:46:05.273975+00:00", "event": "etl_started", "details": {"source": "PNCP", "params": {"data_inicial": "20260611", "data_final": "20260612", "max_paginas": 1}}}
+{"timestamp": "2026-06-13T02:48:28.331838+00:00", "event": "etl_finished", "details": {"extraidos": 20, "transformados": 20, "inseridos": 18, "atualizados": 2, "erros": 0, "sucesso": true}}
+{"timestamp": "2026-06-13T04:03:45.937001+00:00", "event": "etl_started", "details": {"source": "PNCP", "params": {"data_final": "20260613", "data_inicial": "20260601", "uf": "PE", "max_paginas": 1}}}
+{"timestamp": "2026-06-13T04:04:00.086497+00:00", "event": "etl_error", "details": {"error": "Expecting value: line 1 column 1 (char 0)"}}
+{"timestamp": "2026-06-13T04:04:00.086741+00:00", "event": "etl_finished", "details": {"extraidos": 0, "transformados": 0, "inseridos": 0, "atualizados": 0, "erros": 1, "sucesso": false}}
+{"timestamp": "2026-06-13T04:05:09.278546+00:00", "event": "etl_started", "details": {"source": "PNCP", "params": {"data_final": "20260613", "data_inicial": "20260601", "max_paginas": 1}}}
+{"timestamp": "2026-06-13T04:06:50.588089+00:00", "event": "etl_finished", "details": {"extraidos": 14, "transformados": 14, "inseridos": 14, "atualizados": 0, "erros": 0, "sucesso": true}}
