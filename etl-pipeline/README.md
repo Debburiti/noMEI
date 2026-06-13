@@ -1,38 +1,111 @@
-# ETL PNCP — Plataforma de Dados para Contratações Públicas
+# noMEI ETL Pipeline
 
-## Proposta
+Plataforma de Engenharia de Dados para coletar, tratar, armazenar, analisar e disponibilizar dados públicos de contratações do Portal Nacional de Contratações Públicas (PNCP).
 
-Este projeto implementa uma plataforma de dados voltada para ingestão, processamento, análise e disponibilização de dados públicos de contratações governamentais utilizando a API pública do **Portal Nacional de Contratações Públicas (PNCP)**.
+O projeto é o núcleo de dados da aplicação **noMEI**. Ele transforma dados brutos de editais e contratações em uma base curada no MongoDB Atlas, gera datasets analíticos em CSV, Parquet e DuckDB, oferece uma interface visual com Streamlit e expõe consultas para clientes de IA por meio de um servidor MCP.
 
-A solução evoluiu de uma pipeline ETL tradicional para uma arquitetura orientada a **Engenharia de Dados** e **DataOps**, incorporando:
+## Sumário
 
-* ETL incremental
-* Persistência no MongoDB Atlas
-* Orquestração com Prefect
-* Processamento analítico com PySpark
-* Arquitetura medalhão (Bronze / Silver / Gold)
-* Exportação analítica em CSV e Parquet
-* Observabilidade e monitoramento
+- [Objetivo](#objetivo)
+- [Colaboradores](#colaboradores)
+- [Arquitetura](#arquitetura)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Camadas de dados](#camadas-de-dados)
+- [Fluxos disponíveis](#fluxos-disponíveis)
+- [Componentes principais](#componentes-principais)
+- [Configuração do ambiente](#configuração-do-ambiente)
+- [Como executar](#como-executar)
+- [Camada Gold e análises](#camada-gold-e-análises)
+- [Interface Streamlit](#interface-streamlit)
+- [Servidor MCP](#servidor-mcp)
+- [Kafka e streaming](#kafka-e-streaming)
+- [Segurança, LGPD e auditoria](#segurança-lgpd-e-auditoria)
+- [Validação e testes](#validação-e-testes)
+- [Saídas geradas](#saídas-geradas)
 
----
+## Objetivo
 
-# Colaboradores
+O noMEI ETL Pipeline busca dados oficiais do PNCP e prepara essas informações para uso operacional, analítico e por agentes de IA. A aplicação evita que consumidores finais dependam diretamente da API externa, reduzindo acoplamento, melhorando a disponibilidade dos dados e permitindo reprocessamento controlado.
 
-Este projeto foi desenvolvido pelos seguintes integrantes:
+Principais capacidades:
 
-* Débora Buriti
-* Giulliano Lucas
-* Gustavo Lino
-* Italo Artur
-* Myllena Lins
-* Mirella Santana
-* Pedro Fernandes
+- Extração paginada da API pública do PNCP.
+- Execução incremental por intervalo de datas.
+- Filtros por UF, modalidade, CNPJ, município IBGE e unidade administrativa.
+- Transformação de documentos JSON em registros curados.
+- Normalização de datas, valores monetários e campos textuais.
+- Geração de chave idempotente por `numeroControlePNCP`.
+- Persistência no MongoDB Atlas com `bulk_write` e `upsert`.
+- Criação de coleção auxiliar de órgãos.
+- Geração de camada Gold com PySpark.
+- Exportação analítica em CSV, Parquet e DuckDB.
+- Orquestração com Prefect.
+- Processamento alternativo via Kafka.
+- Interface visual em Streamlit.
+- Servidor MCP para consultas por clientes de IA.
+- Auditoria de execução e tratamento básico de LGPD.
 
----
+## Colaboradores
 
-# Arquitetura da Solução
+- Débora Buriti
+- Giulliano Lucas
+- Gustavo Lino
+- Italo Artur
+- Myllena Lins
+- Mirella Santana
+- Pedro Fernandes
 
-O projeto segue uma arquitetura modular orientada a pipelines de dados.
+## Arquitetura
+
+Fluxo principal:
+
+```text
+PNCP API
+  -> Extract
+  -> Transform
+  -> Load
+  -> MongoDB Atlas (Silver)
+  -> PySpark Analytics
+  -> Gold (CSV, Parquet, DuckDB)
+  -> Streamlit / MCP / Dashboards
+```
+
+Fluxo alternativo orientado a eventos:
+
+```text
+PNCP API
+  -> Kafka Producer
+  -> Tópico pncp_contratacoes
+  -> Kafka Consumer
+  -> Transform
+  -> MongoDB Atlas
+```
+
+Arquitetura lógica:
+
+```text
+Usuário / Dashboard / Cliente IA
+              ^
+              |
+       Camadas de consulta
+       - Streamlit
+       - MCP Server
+       - Gold CSV/Parquet/DuckDB
+              ^
+              |
+      Dados curados e analíticos
+      - MongoDB Atlas
+      - analytics_output/gold
+              ^
+              |
+          ETL Pipeline
+      Extract -> Transform -> Load
+              ^
+              |
+            PNCP API
+```
+
+## Estrutura do projeto
 
 ```text
 etl-pipeline/
@@ -41,379 +114,516 @@ etl-pipeline/
 ├── config/
 │   ├── __init__.py
 │   └── settings.py
-├── src/
+├── docker/
+│   └── docker-compose.yml
+├── docs/
+│   ├── arquitetura_etl_pipeline.md
+│   ├── explicacao_aplicacao_noMEI.md
+│   ├── seguranca.md
+│   └── testes_funcionalidade_aplicacao.md
+├── logs/
+│   └── audit_log.jsonl
+├── mcp_service/
 │   ├── __init__.py
-│   ├── extractor.py
-│   ├── transformer.py
-│   ├── loader.py
-│   └── pipeline.py
-├── orchestrate_prefect.py
-├── spark_transform.py
+│   ├── app.py
+│   └── mcp_server.py
+├── src/
+│   ├── analytics/
+│   │   ├── gold_generator.py
+│   │   └── metrics.py
+│   ├── ingestion/
+│   │   ├── extractor.py
+│   │   └── producer.py
+│   ├── orchestration/
+│   │   ├── deployment.py
+│   │   └── orchestrate_prefect.py
+│   ├── processing/
+│   │   ├── pipeline.py
+│   │   ├── spark_transform.py
+│   │   └── transformer.py
+│   ├── security/
+│   │   ├── anonymizer.py
+│   │   ├── audit.py
+│   │   └── lgpd.py
+│   ├── storage/
+│   │   └── loader.py
+│   ├── streaming/
+│   │   ├── consumer_service.py
+│   │   ├── kafka_consumer.py
+│   │   ├── kafka_topics.py
+│   │   └── stream_pipeline.py
+│   └── contracts.py
 ├── main.py
 ├── requirements.txt
-├── .env.example
 └── README.md
 ```
 
----
+## Camadas de dados
 
-# Arquitetura Medalhão
+O projeto segue o modelo medalhão de Engenharia de Dados.
 
-O projeto utiliza o modelo medalhão de Engenharia de Dados:
+| Camada | Descrição | Implementação |
+| --- | --- | --- |
+| Bronze | Dados brutos extraídos da API do PNCP | Respostas JSON da API durante a extração |
+| Silver | Dados tratados, normalizados e persistidos | MongoDB Atlas |
+| Gold | Agregações e datasets prontos para análise | CSV, Parquet e DuckDB em `analytics_output/gold` |
 
-| Camada | Descrição                                             |
-| ------ | ----------------------------------------------------- |
-| Bronze | Dados brutos extraídos da API pública do PNCP         |
-| Silver | Dados tratados e persistidos no MongoDB Atlas via ETL |
-| Gold   | Tabelas analíticas processadas com PySpark            |
+## Fluxos disponíveis
 
----
+### 1. ETL principal
 
-# Fluxo Geral da Plataforma
-
-```text
-PNCP API
-   ↓
-ETL Pipeline
-   ↓
-MongoDB Atlas (Silver Layer)
-   ↓
-PySpark Analytics
-   ↓
-Gold Layer
-   ├── oportunidades_por_uf
-   ├── oportunidades_mei
-   ├── top_orgaos
-   ├── maiores_editais
-   └── media_por_modalidade
-```
-
----
-
-# Componentes Principais
-
-| Classe / Arquivo                         | Responsabilidade                                 |
-| ---------------------------------------- | ------------------------------------------------ |
-| `PNCPExtractor` (`src/extractor.py`)     | Extração paginada de dados da API PNCP           |
-| `PNCPTransformer` (`src/transformer.py`) | Limpeza, normalização e enriquecimento dos dados |
-| `MongoDBLoader` (`src/loader.py`)        | Persistência idempotente no MongoDB Atlas        |
-| `ETLPipeline` (`src/pipeline.py`)        | Coordenação do fluxo Extract → Transform → Load  |
-| `orchestrate_prefect.py`                 | Orquestração e monitoramento do pipeline         |
-| `spark_transform.py`                     | Camada analítica Spark (Gold Layer)              |
-| `Settings` (`config/settings.py`)        | Configurações centralizadas                      |
-
----
-
-# Fluxo ETL
+Executa extração, transformação e carga de dados no MongoDB Atlas.
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        ETLPipeline.run()                        │
-│                                                                 │
-│  ┌──────────────┐    registros     ┌─────────────────────────┐  │
-│  │ PNCPExtractor│ ─── brutos ───► │   PNCPTransformer       │  │
-│  │              │  (paginados)     │                         │  │
-│  │ GET /v1/     │                  │ • parse de datas → UTC  │  │
-│  │ contratacoes │                  │ • normalização strings  │  │
-│  │ /proposta    │                  │ • cálculo MEI           │  │
-│  │              │                  │ • add _id e metadata    │  │
-│  └──────────────┘                  └────────────┬────────────┘  │
-│                                                 │ documentos    │
-│                                                 ▼ em lotes      │
-│                                    ┌────────────────────────┐   │
-│                                    │  MongoDBLoader         │   │
-│                                    │                        │   │
-│                                    │ • bulk_write + upsert  │   │
-│                                    │ • índices automáticos  │   │
-│                                    │ • persistência Silver  │   │
-│                                    └──────────┬─────────────┘   │
-└───────────────────────────────────────────────┼─────────────────┘
-                                                ▼
-                                    ┌────────────────────────┐
-                                    │    MongoDB Atlas       │
-                                    │  db: pncp              │
-                                    │  collection:            │
-                                    │ contratacoes_proposta  │
-                                    └────────────────────────┘
+main.py
+  -> src/processing/pipeline.py
+  -> src/ingestion/extractor.py
+  -> src/processing/transformer.py
+  -> src/storage/loader.py
 ```
 
----
+### 2. Orquestração com Prefect
 
-# Funcionalidades ETL
-
-## Extract
-
-O `PNCPExtractor` realiza:
-
-* Requisições HTTP paginadas
-* Retry automático em falhas transitórias
-* Timeout configurável
-* Logs estruturados
-* Busca incremental por datas
-
-### Filtros suportados
-
-* Data inicial/final
-* UF
-* Modalidade
-* CNPJ
-* Município IBGE
-* Unidade administrativa
-
----
-
-## Transform
-
-O `PNCPTransformer` realiza:
-
-* Conversão de datas para UTC
-* Limpeza de valores nulos
-* Normalização textual
-* Enriquecimento dos documentos
-* Geração de `_id`
-* Criação do campo `_mei_compativel`
-* Adição de metadata ETL
-
----
-
-## Load
-
-O `MongoDBLoader` implementa:
-
-* Persistência idempotente
-* `bulk_write`
-* `upsert`
-* Índices automáticos
-* Escrita em micro-lotes
-
-### Índices implementados
-
-* `modalidadeId`
-* `situacaoCompraId`
-* `unidadeOrgao.ufSigla`
-* `valorTotalEstimado`
-* `_mei_compativel`
-* `cnae_codes`
-* `objetoCompra` (texto)
-
----
-
-# DataOps e Orquestração
-
-A plataforma incorpora conceitos de DataOps para automação e observabilidade.
-
-## Funcionalidades implementadas
-
-* Orquestração com Prefect
-* Retry automático
-* Logging estruturado
-* Execução incremental automática
-* Monitoramento de pipelines
-* Controle de fluxo ETL
-* Observabilidade de execução
-
----
-
-# Execução Orquestrada com Prefect
-
-A pipeline ETL pode ser executada via Prefect:
-
-```bash
-python orchestrate_prefect.py
-```
-
-## Recursos da orquestração
-
-* Monitoramento visual
-* Retries automáticos
-* Logging detalhado
-* Pipeline incremental automática
-* Controle de execução
-
----
-
-# Pipeline Analítica com PySpark
-
-A camada analítica foi implementada utilizando PySpark para transformar documentos semiestruturados em tabelas analíticas estruturadas.
-
-## Funcionalidades analíticas
-
-* Agregações analíticas
-* Persistência distribuída
-* Cache Spark
-* Exportação em CSV e Parquet
-* Construção da camada Gold
-
----
-
-# Métricas Analíticas Geradas
-
-* Quantidade de oportunidades por UF
-* Média de valor por modalidade
-* Oportunidades compatíveis com MEI
-* Top órgãos contratantes
-* Maiores editais publicados
-* Maior valor de contratação por UF
-
----
-
-# Execução da Pipeline Analítica
-
-```bash
-python spark_transform.py
-```
-
----
-
-# Outputs Analíticos
-
-Os datasets gerados são persistidos em:
+Executa o ETL com tasks monitoráveis, retries e logs do orquestrador.
 
 ```text
-analytics_output/gold/
+src/orchestration/orchestrate_prefect.py
 ```
 
-## Formatos suportados
+### 3. Analytics com PySpark
 
-* CSV
-* Parquet
+Lê a camada Silver no MongoDB e gera datasets Gold.
 
----
+```text
+src/processing/spark_transform.py
+  -> src/analytics/gold_generator.py
+```
 
-# Tecnologias Utilizadas
+### 4. Visualização com Streamlit
 
-* Python 3.12
-* MongoDB Atlas
-* PySpark
-* Prefect
-* PyMongo
-* Requests
-* Pandas
-* dotenv
+Lê os CSVs da camada Gold e apresenta tabelas analíticas.
 
----
+```text
+mcp_service/app.py
+```
 
-# Pré-requisitos
+### 5. Consultas por MCP
 
-* Python 3.12+
-* Java JDK (necessário para Spark)
-* Conta MongoDB Atlas
+Expõe tools e resources para clientes de IA consultarem a base curada.
 
----
+```text
+mcp_service/mcp_server.py
+```
 
-# Instalação
+### 6. Streaming com Kafka
 
-## 1. Clone o repositório
+Permite ingestão e processamento orientado a eventos.
+
+```text
+src/ingestion/producer.py
+src/streaming/stream_pipeline.py
+src/streaming/consumer_service.py
+```
+
+## Componentes principais
+
+| Componente | Arquivo | Responsabilidade |
+| --- | --- | --- |
+| `Settings` | `config/settings.py` | Centraliza variáveis de ambiente e valida parâmetros obrigatórios |
+| `PNCPExtractor` | `src/ingestion/extractor.py` | Consulta a API do PNCP com paginação, filtros e retries |
+| `PNCPTransformer` | `src/processing/transformer.py` | Normaliza registros, converte tipos, enriquece metadados e aplica regras básicas de LGPD |
+| `MongoDBLoader` | `src/storage/loader.py` | Persiste documentos no MongoDB com upsert e índices |
+| `ETLPipeline` | `src/processing/pipeline.py` | Coordena Extract, Transform e Load em micro-lotes |
+| `spark_transform.py` | `src/processing/spark_transform.py` | Gera agregações analíticas da camada Gold |
+| `gold_generator.py` | `src/analytics/gold_generator.py` | Salva datasets Gold em CSV, Parquet e DuckDB |
+| `orchestrate_prefect.py` | `src/orchestration/orchestrate_prefect.py` | Define tasks e flow do Prefect |
+| `mcp_server.py` | `mcp_service/mcp_server.py` | Expõe tools MCP para consulta ao MongoDB |
+| `app.py` | `mcp_service/app.py` | Interface Streamlit para visualizar a camada Gold |
+| `stream_pipeline.py` | `src/streaming/stream_pipeline.py` | Consome mensagens Kafka, transforma e carrega no MongoDB |
+
+## Configuração do ambiente
+
+### Pré-requisitos
+
+- Python 3.10 ou superior.
+- Acesso à internet para consultar a API pública do PNCP.
+- MongoDB Atlas ou outro MongoDB compatível.
+- Java instalado para execução do PySpark.
+- Docker, caso deseje executar Kafka localmente.
+
+### Instalação
+
+Crie e ative um ambiente virtual:
 
 ```bash
-git clone <repositorio>
-cd etl-pipeline
+python -m venv .venv
+source .venv/bin/activate
 ```
 
----
-
-## 2. Instale as dependências
+Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+### Variáveis de ambiente
 
-## 3. Configure as variáveis de ambiente
-
-Crie o `.env`:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/?retryWrites=true&w=majority
 MONGODB_DATABASE=pncp
 MONGODB_COLLECTION=contratacoes_proposta
+MONGODB_ORGAOS_COLLECTION=orgaos
+
+PNCP_BASE_URL=https://pncp.gov.br/api/consulta
+REQUEST_TIMEOUT=30
+MAX_RETRIES=3
+RETRY_BACKOFF=2.0
+PAGE_SIZE=50
+MAX_PAGES=50
+BATCH_SIZE=100
+
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+KAFKA_GROUP_ID=pncp-consumer-group
+KAFKA_TOPIC_PNCP=pncp_contratacoes
+
+GOLD_OUTPUT_PATH=analytics_output/gold
+GOLD_DUCKDB_PATH=analytics_output/gold/noMEI_gold.duckdb
 ```
 
----
+Observações:
 
-# Execução ETL
+- `MONGODB_URI` é obrigatório para executar cargas, consultas MCP e geração Gold.
+- `PAGE_SIZE` deve ficar entre 10 e 500.
+- `MAX_PAGES`, `MAX_RETRIES` e `BATCH_SIZE` devem ser maiores que zero.
+- Credenciais não devem ser colocadas diretamente no código-fonte.
 
-## Execução simples
+## Como executar
+
+### ETL principal via CLI
+
+Execução limitada para teste:
 
 ```bash
-python main.py
+python main.py --data-inicial 20260601 --data-final 20260613 --uf PE --max-paginas 1
 ```
 
----
-
-## Exemplos
-
-### Filtrar por UF
+Execução por período:
 
 ```bash
-python main.py --uf pe
+python main.py --data-inicial 20260601 --data-final 20260613
 ```
 
-### Filtrar por modalidade
+Execução com filtros:
 
 ```bash
-python main.py --uf pe --modalidade 8
+python main.py \
+  --data-inicial 20260601 \
+  --data-final 20260613 \
+  --uf PE \
+  --modalidade 6 \
+  --max-paginas 5
 ```
 
-### Intervalo de datas
+Argumentos disponíveis:
+
+| Argumento | Descrição | Exemplo |
+| --- | --- | --- |
+| `--data-inicial` | Data inicial no formato `YYYYMMDD` | `20260601` |
+| `--data-final` | Data final no formato `YYYYMMDD`; padrão é a data atual | `20260613` |
+| `--uf` | Unidade federativa | `PE` |
+| `--modalidade` | Código da modalidade de contratação | `6` |
+| `--cnpj` | CNPJ do órgão | `12345678000100` |
+| `--municipio-ibge` | Código IBGE do município | `2611606` |
+| `--max-paginas` | Limite de páginas para testes ou cargas controladas | `1` |
+
+O comando valida o formato das datas, impede `data_final` no futuro e impede que `data_inicial` seja maior que `data_final`.
+
+### Orquestração com Prefect
+
+Execute o flow padrão:
 
 ```bash
-python main.py --data-inicial 20260501 --data-final 20260510
+python -m src.orchestration.orchestrate_prefect
 ```
 
-### Limitar páginas
+O flow calcula automaticamente uma janela incremental:
+
+```text
+data_final = data atual
+data_inicial = data atual - dias_retroativos
+```
+
+No arquivo `src/orchestration/orchestrate_prefect.py`, o ponto de entrada padrão executa:
+
+```python
+etl_flow(
+    dias_retroativos=1,
+    max_paginas=1,
+)
+```
+
+## Camada Gold e análises
+
+Após popular o MongoDB, gere a camada Gold com Spark:
 
 ```bash
-python main.py --max-paginas 5
+python -m src.processing.spark_transform
 ```
 
----
+O processo:
 
-# Argumentos Disponíveis
+1. Conecta ao MongoDB Atlas.
+2. Lê os documentos da coleção Silver.
+3. Cria um DataFrame Spark.
+4. Calcula agregações analíticas.
+5. Exibe amostras no terminal.
+6. Salva CSV, Parquet e DuckDB.
 
-| Argumento          | Tipo     | Descrição             |
-| ------------------ | -------- | --------------------- |
-| `--data-final`     | YYYYMMDD | Data final da busca   |
-| `--data-inicial`   | YYYYMMDD | Data inicial da busca |
-| `--uf`             | string   | Sigla da UF           |
-| `--modalidade`     | inteiro  | Código da modalidade  |
-| `--cnpj`           | string   | CNPJ do órgão         |
-| `--municipio-ibge` | string   | Código IBGE           |
-| `--max-paginas`    | inteiro  | Limite de páginas     |
+Datasets gerados:
 
----
+| Dataset | Descrição |
+| --- | --- |
+| `oportunidades_por_uf` | Quantidade de oportunidades por UF |
+| `media_por_modalidade` | Valor médio estimado por modalidade |
+| `oportunidades_mei` | Oportunidades marcadas como compatíveis com MEI por UF |
+| `top_orgaos` | Órgãos com mais editais |
+| `maiores_editais` | Dez editais com maior valor estimado |
+| `maior_valor_por_uf` | Maior valor estimado encontrado por UF |
 
-# Engenharia de Dados Aplicada
+As saídas são gravadas em:
 
-O projeto implementa conceitos modernos de Engenharia de Dados:
+```text
+analytics_output/gold/<dataset>/csv/
+analytics_output/gold/<dataset>/parquet/
+analytics_output/gold/noMEI_gold.duckdb
+```
 
-* Arquitetura medalhão
-* ETL incremental
-* Persistência idempotente
-* Camada analítica Spark
-* DataFrames distribuídos
-* Pipeline modular
-* Observabilidade
-* DataOps
-* Retry automático
-* Processamento analítico
+## Interface Streamlit
 
----
+Depois de gerar a camada Gold, execute:
 
-# Evoluções Futuras
+```bash
+streamlit run mcp_service/app.py
+```
 
-* Dockerização da plataforma
-* Apache Kafka
-* Streaming de eventos
-* Dashboard analítico
-* Data Lake
-* Integração com ferramentas BI
-* Deploy automatizado
-* Airflow/Prefect Server
+A interface permite visualizar:
 
----
+- Oportunidades por UF.
+- Oportunidades MEI.
+- Média por modalidade.
+- Top órgãos.
+- Maiores editais.
+- Maior valor por UF.
 
-# Licença
+A aplicação lê os arquivos CSV presentes em `analytics_output/gold`.
 
-Projeto acadêmico desenvolvido para fins educacionais e de pesquisa em Engenharia de Dados e DataOps.
+## Servidor MCP
+
+O servidor MCP permite que clientes de IA consultem a base curada no MongoDB.
+
+Execute:
+
+```bash
+python -m mcp_service.mcp_server
+```
+
+Tools disponíveis:
+
+| Tool | Finalidade |
+| --- | --- |
+| `consultar_por_uf` | Retorna oportunidades de uma UF |
+| `consultar_por_modalidade` | Retorna oportunidades por modalidade |
+| `consultar_por_orgao` | Retorna oportunidades por órgão |
+| `consultar_mei` | Retorna oportunidades compatíveis com MEI |
+| `consultar_por_periodo` | Consulta oportunidades por intervalo de publicação |
+| `consultar_contratacoes` | Consulta parametrizada combinando UF, órgão, modalidade, período, termo e MEI |
+| `valor_total_contratacoes` | Agrega quantidade, valor total e valor médio para filtros combinados |
+| `valor_total_por_uf` | Calcula valor total estimado para uma UF |
+| `valor_total_mei` | Calcula valor total de oportunidades compatíveis com MEI |
+| `resumo_geral` | Retorna estatísticas gerais da base |
+
+Resource disponível:
+
+```text
+pncp://resumo
+```
+
+Exemplo de pergunta que pode ser atendida por um cliente conectado ao MCP:
+
+```text
+Qual o valor total das licitações de TI publicadas em Pernambuco no último trimestre?
+```
+
+Essa pergunta pode ser traduzida para:
+
+```python
+valor_total_contratacoes(
+    uf="PE",
+    termo_objeto="TI",
+    data_inicio="2026-04-01",
+    data_fim="2026-06-30",
+)
+```
+
+## Kafka e streaming
+
+O projeto possui suporte a fluxo alternativo com Apache Kafka para processamento orientado a eventos.
+
+Suba o Kafka local:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+Configuração padrão:
+
+```env
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+KAFKA_GROUP_ID=pncp-consumer-group
+KAFKA_TOPIC_PNCP=pncp_contratacoes
+```
+
+Componentes:
+
+- `PNCPProducer`, em `src/ingestion/producer.py`, publica mensagens JSON.
+- `PNCPConsumer`, em `src/streaming/kafka_consumer.py`, consome mensagens do tópico.
+- `run_stream_pipeline`, em `src/streaming/stream_pipeline.py`, transforma cada mensagem e persiste no MongoDB.
+
+O fluxo de streaming usa o mesmo `PNCPTransformer` e o mesmo `MongoDBLoader` do ETL principal, mantendo consistência entre cargas em lote e processamento por eventos.
+
+## Segurança, LGPD e auditoria
+
+Medidas implementadas:
+
+- Uso de `.env` para credenciais e configurações sensíveis.
+- Validação centralizada de configurações em `Settings`.
+- Ausência de credenciais hardcoded nos módulos principais.
+- Auditoria estruturada em `logs/audit_log.jsonl`.
+- Registro de início, fim, falhas críticas e erros de transformação.
+- Reprocessamento idempotente por `_id = numeroControlePNCP`.
+- Transformações de segurança e regras básicas de LGPD em `src/security`.
+- Retries e backoff em operações de extração.
+- Orquestração com Prefect para observabilidade e reexecução controlada.
+
+Eventos auditados incluem:
+
+- `etl_started`
+- `etl_finished`
+- `etl_error`
+- `transform_error`
+- `stream_pipeline_started`
+- `stream_record_processed`
+- `stream_processing_error`
+- `stream_pipeline_finished`
+
+## Validação e testes
+
+Compile os módulos para validar sintaxe:
+
+```bash
+python -m compileall config src mcp_service main.py
+```
+
+Teste carregamento de configurações:
+
+```bash
+python - <<'PY'
+from config.settings import Settings
+
+settings = Settings()
+print(settings.BASE_URL)
+print(settings.PAGE_SIZE)
+print(settings.MONGODB_DATABASE)
+print(settings.KAFKA_TOPIC_PNCP)
+print(settings.GOLD_OUTPUT_PATH)
+PY
+```
+
+Teste uma execução pequena do ETL:
+
+```bash
+python main.py --data-inicial 20260601 --data-final 20260613 --uf PE --max-paginas 1
+```
+
+Teste a geração Gold após carregar dados no MongoDB:
+
+```bash
+python -m src.processing.spark_transform
+```
+
+Mais cenários de validação estão documentados em:
+
+```text
+docs/testes_funcionalidade_aplicacao.md
+```
+
+## Saídas geradas
+
+### MongoDB Atlas
+
+Banco padrão:
+
+```text
+pncp
+```
+
+Coleções padrão:
+
+```text
+contratacoes_proposta
+orgaos
+```
+
+A coleção principal armazena documentos curados com:
+
+- `_id`
+- `numeroControlePNCP`
+- `orgaoEntidade`
+- `unidadeOrgao`
+- `modalidadeNome`
+- `situacaoCompraNome`
+- `objetoCompra`
+- `valorTotalEstimado`
+- `valorTotalHomologado`
+- `dataPublicacaoPncp`
+- `_mei_compativel`
+- `_etl_ingestao_em`
+- `_etl_fonte`
+- `_etl_camada`
+- `_consulta`
+
+### Arquivos analíticos
+
+```text
+analytics_output/gold/
+├── maior_valor_por_uf/
+├── maiores_editais/
+├── media_por_modalidade/
+├── oportunidades_mei/
+├── oportunidades_por_uf/
+├── top_orgaos/
+└── noMEI_gold.duckdb
+```
+
+Cada dataset é salvo em formatos:
+
+- CSV, para leitura simples e uso em dashboards.
+- Parquet, para armazenamento colunar eficiente.
+- DuckDB, para consultas SQL locais.
+
+### Logs
+
+```text
+logs/audit_log.jsonl
+```
+
+Esse arquivo registra eventos estruturados relevantes para rastreabilidade operacional.
+
+## Documentação complementar
+
+- `docs/arquitetura_etl_pipeline.md`: detalhamento técnico da arquitetura.
+- `docs/explicacao_aplicacao_noMEI.md`: relação entre a aplicação noMEI e o pipeline.
+- `docs/seguranca.md`: justificativas de disponibilidade, proteção e auditoria.
+- `docs/testes_funcionalidade_aplicacao.md`: roteiro de testes funcionais.

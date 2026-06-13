@@ -9,3 +9,5 @@ pyspark
 pandas
 fastmcp
 streamlit
+kafka-python
+duckdb
