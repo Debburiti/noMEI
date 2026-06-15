@@ -1,7 +1,7 @@
 # 🗓️ Cronograma de Atividades - noMEI
 
 > **Status Geral do Projeto:** 🟢 Em Dia
-> **Última Atualização:** 05/06/2026
+> **Última Atualização:** 14/06/2026
 
 
 ---
@@ -51,47 +51,41 @@
 
 ---
 
-## 🚩 Entrega 3 (Finalização do Desenvolvimento)
+## 🚩 Entrega 3 (Ajustes e Refinamento)
 **Período:** 25/05/2026 - 08/06/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
 | Documentação de Segurança da Informação | 28/06 | Italo Vasconcelos | Gestão | ✅ |
-| Implementar Testes Unitários para domínios pendentes | [data] | Italo Vasconcelos | Back | 🏗️ |
+| Implementar Testes Unitários para domínios pendentes | [data] | Italo Vasconcelos | Back | ✅ |
 | Feedback de usabilidade/proposição de melhorias | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
 | Userstories em formato .md na pasta /docs | 03/06/2026 | Pedro Fernandes | Gestão | ✅ |
-| Implementar Servidor MCP e interface Streamlit para chatbot | [data] | Myllena Lins | Dados | 🏗️ |
+| Implementar Servidor MCP e interface Streamlit para chatbot | [data] | Myllena Lins | Dados | ✅ |
 | Verificar e Ajustar upload de documentos | [data] | Mirella Santana | Full | ✅ |
 | Consertar Bugs de Integração | [data] | Giulliano Muniz | Full | ✅ |
-| Consolidação da documentação e evidências de testes | [data] | Giulliano Muniz, Luis Facunde, Débora Buriti, Italo Vasconcelos e Mirella Santana | Full | 🏗️ |
+| Consolidação da documentação e evidências de testes | [data] | Giulliano Muniz, Luis Facunde, Débora Buriti, Italo Vasconcelos e Mirella Santana | Full | ✅ |
 | Screencast / Apresentação em Vídeo | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
-| Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | 🏗️ | 
+| Pitch Técnico / Preparação da Apresentação | [data] | [nome] | Gestão | ✅ | 
 | Documentação das Stacks Utilizadas de cada Disciplina | 05/06/2026 | Pedro Fernandes | Gestão | ✅ |
 
 ---
 
-## 🚩 Entrega 4 (Continuação do Desenvolvimento)
-**Período:** 00/00/2026 - 00/00/2026
+## 🚩 Entrega 4 (Apresentação Final)
+**Período:** 08/06/2026 - 19/06/2026
 
 | Atividade | Data Limite | Responsável | Área | Status |
 |:---|:---:|:---|:---:|:---:|
-| [atividade] | [data] | [Nome] | Front | 🔒 |
-| [atividade] | [data] | [Nome] | Back | 🔒 |
-| [atividade] | [data] | [Nome] | Full | 🔒 |
-| [atividade] | [data] | [Nome] | Dados | 🔒 |
-| [atividade] | [data] | [Nome] | QA | 🔒 |
+| Implementação do nginx / Cloudflare | [data] | Italo Vasconcelos | Full | ✅ |
+| Deploy do Back-end | 12/06 | Gustavo Lino, Débora Buriti e Italo Vasconcelos | Back | ✅ |
+| Criação de Branch Release e APK | [data] | Débora Buriti e Luis Facunde | Full | 🏗️ |
+| Deploy do Front-end | [data] | Giulliano Muniz, Luis Facunde e  Mirella Santana | Front | 🏗️ |
+| Criação do Checkbox para LGPD ao criar conta | [data] | Luis Facunde | Front | 🏗️ |
+| Apresentação - Segurança da Informação | [data] | Giulliano Muniz e Italo Vasconcelos | Full | ✅ |
+| Apresentação - Engenharia de Dados e Big Data | 13/06 | Myllena Lins | Dados | ✅ |
+| Apresentação - Desenvolvimento Mobile | [data] | Débora Buriti e Luis Facunde | Full | 🏗️ |
+| Apresentação - Projetos 5 | [data] | Luis Facunde e Pedro Fernandes | Gestão | 🏗️ |
+| Apresentação - Negócios Para Internet | [data] | Mirella Santana e Pedro Fernandes | Gestão | 🏗️ |
 
 ---
-
-## 🚩 Entrega 5 (Continuação do Desenvolvimento)
-**Período:** 00/00/2026 - 00/00/2026
-
-| Atividade | Data Limite | Responsável | Área | Status |
-|:---|:---:|:---|:---:|:---:|
-| [atividade] | [data] | [Nome] | Front | 🔒 |
-| [atividade] | [data] | [Nome] | Back | 🔒 |
-| [atividade] | [data] | [Nome] | Full | 🔒 |
-| [atividade] | [data] | [Nome] | Dados | 🔒 |
-| [atividade] | [data] | [Nome] | QA | 🔒 |
 
 **Legenda:** ✅ Concluído | 🏗️ Em Andamento | ⏳ Pendente | 🔒 Bloqueado
