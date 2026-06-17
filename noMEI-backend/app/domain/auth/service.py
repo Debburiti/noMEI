@@ -3,7 +3,6 @@ from datetime import UTC, datetime, timedelta
 
 from jose import JWTError
 
-from app.config import settings
 from app.core.email_service import EmailService
 from app.core.security import (
     create_password_reset_token,
@@ -78,14 +77,13 @@ class AuthService:
                 expires_at=expires_at,
             )
 
-            reset_link = f"{settings.frontend_url}/reset-password?token={reset_token}"
             self.email_service.send_password_reset_email(
                 to_email=email,
-                reset_link=reset_link,
+                reset_token=reset_token,
             )
 
         return {
-            "message": "Se o email existir, um link de recuperação foi enviado."
+            "message": "Se o email existir, um código de recuperação foi enviado."
         }
 
     async def reset_password(self, token: str, new_password: str) -> dict:
