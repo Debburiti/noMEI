@@ -1,7 +1,7 @@
 import { Platform, Linking } from 'react-native';
 import { getAccessToken } from './authService';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
 function authHeaders(): Record<string, string> {
     const token = getAccessToken();
@@ -59,9 +59,9 @@ export async function uploadDocumento(
     return response.json();
 }
 
-export async function listarDocumentos(cnpj: string): Promise<DocumentoListResponse> {
+export async function listarDocumentos(): Promise<DocumentoListResponse> {
     const response = await fetch(
-        `${API_BASE_URL}/documentos/?cnpj=${encodeURIComponent(cnpj)}`,
+        `${API_BASE_URL}/documentos/`,
         { headers: authHeaders() }
     );
 
