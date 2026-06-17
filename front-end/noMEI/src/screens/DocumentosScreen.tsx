@@ -202,7 +202,7 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
                 if (!selectedDoc) return;
 
                 try {
-                  await abrirDocumento(selectedDoc.id);
+                  await abrirDocumento(selectedDoc.id, selectedDoc.nome);
                   setMenuVisible(false);
                 } catch {
                   Alert.alert(

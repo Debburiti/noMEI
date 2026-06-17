@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
    ActivityIndicator,
+   Alert,
    ScrollView,
+   Share,
    StyleSheet,
    Text,
    TouchableOpacity,
@@ -65,6 +67,7 @@ export function DetalhesLicitacaoScreen({
    const [bid, setBid] = useState<Bid | null>(null);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState<string | null>(null);
+   const [bookmarked, setBookmarked] = useState(false);
 
    useEffect(() => {
       setLoading(true);
@@ -78,7 +81,6 @@ export function DetalhesLicitacaoScreen({
          .finally(() => setLoading(false));
    }, [bidId]);
 
-   // Dados para exibição: preferência pelo fetch, fallback nos params de navegação
    const displayAgency = bid?.agency ?? agencyParam ?? '';
    const displayValue = bid?.value ?? valueParam ?? null;
    const displayStatus = bid?.status ?? statusParam ?? 'open';
@@ -88,14 +90,41 @@ export function DetalhesLicitacaoScreen({
       ? displayValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
       : null;
 
+   function handleBookmark(): void {
+      setBookmarked((prev) => !prev);
+   }
+
+   async function handleShare(): Promise<void> {
+      const message = [
+         displayTitle,
+         displayAgency && `Órgão: ${displayAgency}`,
+         formattedValue && `Valor estimado: ${formattedValue}`,
+      ].filter(Boolean).join('\n');
+
+      try {
+         await Share.share({ message });
+      } catch {
+         // Usuário cancelou ou compartilhamento não disponível
+      }
+   }
+
+   function handleParticipar(): void {
+      Alert.alert(
+         'Em breve',
+         'A funcionalidade de participação em licitações estará disponível em breve!',
+         [{ text: 'OK' }]
+      );
+   }
+
    return (
       <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
          {/* Header — fundo branco, botões circulares */}
          <Header
             variant="detail"
             onBackPress={() => navigation.goBack()}
-            onBookmarkPress={() => {}}
-            onSharePress={() => {}}
+            onBookmarkPress={handleBookmark}
+            bookmarked={bookmarked}
+            onSharePress={handleShare}
          />
 
          <ScrollView
@@ -262,7 +291,7 @@ export function DetalhesLicitacaoScreen({
          <View style={styles.ctaContainer}>
             <Button
                label="Participar desta Licitação"
-               onPress={() => {}}
+               onPress={handleParticipar}
                variant="primary"
                size="lg"
                fullWidth
