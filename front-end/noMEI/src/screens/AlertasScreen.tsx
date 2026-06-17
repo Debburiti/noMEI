@@ -102,14 +102,6 @@ export function AlertasScreen({ navigation }: Props): React.JSX.Element {
             style={styles.scroll}
             contentContainerStyle={styles.content}
          >
-            <View style={styles.calendarPlaceholder}>
-               <Text style={styles.calendarTitle}>
-                  📅 Calendário Semanal — Sprint 3
-               </Text>
-               <Text style={styles.calendarSubtitle}>
-                  Visualização de prazos e compromissos da semana
-               </Text>
-            </View>
 
             <Text style={styles.sectionTitle}>Recentes</Text>
 
