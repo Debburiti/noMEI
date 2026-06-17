@@ -33,7 +33,7 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
     setLoadingList(true);
     setErrorList(null);
     try {
-      const result = await listarDocumentos(cnpj);
+      const result = await listarDocumentos();
       setDocumentos(result.items);
     } catch (err) {
       setErrorList(err instanceof Error ? err.message : 'Erro ao carregar documentos');
@@ -106,7 +106,7 @@ export function DocumentosScreen({ navigation: _navigation }: Props): React.JSX.
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
       <Header variant="default" notificationCount={0} />
 
          <View style={styles.titleSection}>

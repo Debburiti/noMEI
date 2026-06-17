@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components';
 import { colors, spacing, borderRadius, shadows, textPresets } from '../theme';
 import { useProfile } from '../context/ProfileContext';
@@ -74,7 +73,7 @@ export function ConfiguracaoPerfilScreen({ navigation, route }: Props): React.JS
   }
 
    return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
          {/* Header */}
          <View style={[styles.header, { paddingTop: insets.top + spacing[2] }]}>
             <TouchableOpacity

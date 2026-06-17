@@ -20,10 +20,10 @@ const MENU_ITEMS = [
 export function PerfilScreen({ navigation }: Props): React.JSX.Element {
   function handleLogout(): void {
     clearTokens();
-    navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+    navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
   }
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
       <Header variant="default" notificationCount={0} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
    ActivityIndicator,
-   SafeAreaView,
    ScrollView,
    StyleSheet,
    Text,
@@ -9,6 +8,7 @@ import {
    View,
    Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Input } from "../components";
 import { colors, spacing } from "../theme";
 import { login } from "../services";

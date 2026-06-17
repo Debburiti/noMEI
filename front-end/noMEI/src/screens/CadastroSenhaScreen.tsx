@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-   SafeAreaView,
    ScrollView,
    StyleSheet,
    Text,
    TouchableOpacity,
    View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Input, ValidationItem } from "../components";
 import { colors, spacing } from "../theme";
@@ -22,6 +22,7 @@ interface PasswordValidation {
 }
 
 export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Element {
+   const insets = useSafeAreaInsets();
    const [senha, setSenha] = useState("");
    const [confirmarSenha, setConfirmarSenha] = useState("");
    const [showSenha, setShowSenha] = useState(false);
@@ -69,8 +70,8 @@ export function CadastroSenhaScreen({ navigation, route }: Props): React.JSX.Ele
    }
 
    return (
-      <SafeAreaView style={styles.safeArea}>
-         <View style={styles.header}>
+      <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
+         <View style={[styles.header, { paddingTop: insets.top + spacing[4] }]}>
             <TouchableOpacity onPress={handleBackPress} activeOpacity={0.7}>
                <Ionicons name="arrow-back" size={24} color={colors.white} />
             </TouchableOpacity>

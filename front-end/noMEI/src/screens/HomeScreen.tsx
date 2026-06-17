@@ -90,7 +90,7 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
       <Header
         variant="default"
         notificationCount={3}
