@@ -2,14 +2,14 @@ from typing import Literal, Optional
 from fastapi import HTTPException
 from .repository import ParticipacaoRepository
 from .schemas import DashboardResponse, ParticipacaoListResponse, ParticipacaoListItem
-from app.domain.auth.repository import UserRepository
+from app.domain.perfil.repository import PerfilRepository
 
 BidStatus = Literal["open", "analysis", "sent", "winner", "closed"]
 
 class ParticipacaoService:
     def __init__(self):
         self.repository = ParticipacaoRepository()
-        self.user_repository = UserRepository()
+        self.perfil_repository = PerfilRepository()
         self.status_finalizados: set[BidStatus] = {"winner", "closed"}
 
 
@@ -34,13 +34,13 @@ class ParticipacaoService:
         return (total_vitorias / total_finalizadas) if total_finalizadas > 0 else 0.0
         
     async def _validar_e_extrair_cnpj(self, user_id: str) -> str:
-        user = await self.user_repository.get_by_id(user_id)
+        perfil = await self.perfil_repository.get_by_user_id(user_id)
 
-        if not user or not user.get("cnpj"):
+        if not perfil or not perfil.get("cnpj"):
             raise HTTPException(
-                status_code=404, detail="Usuário não possui CNPJ cadastrado."
+                status_code=404, detail="Perfil com CNPJ não encontrado. Cadastre seu perfil primeiro."
             )
-        return user["cnpj"]
+        return perfil["cnpj"]
 
 
     async def resumo_dashboard(self, user_id: str) -> DashboardResponse:
