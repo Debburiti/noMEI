@@ -1,4 +1,6 @@
 import { Platform, Linking } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { getAccessToken } from './authService';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -72,21 +74,55 @@ export async function listarDocumentos(): Promise<DocumentoListResponse> {
     return response.json();
 }
 
-export async function abrirDocumento(id: string): Promise<void> {
+export async function abrirDocumento(id: string, nomeArquivo?: string): Promise<void> {
     const url = `${API_BASE_URL}/documentos/${id}/download`;
 
     if (Platform.OS === 'web') {
-        window.open(url, '_blank');
+        // Web: fetch autenticado → blob URL → nova aba
+        const response = await fetch(url, { headers: authHeaders() });
+        if (!response.ok) {
+            throw new Error(`Erro ao baixar documento: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
         return;
     }
 
-    const supported = await Linking.canOpenURL(url);
-
-    if (!supported) {
-        throw new Error('Não foi possível abrir o documento');
+    // Nativo: fetch autenticado → base64 → cache local → Sharing
+    const response = await fetch(url, { headers: authHeaders() });
+    if (!response.ok) {
+        throw new Error(`Erro ao baixar documento: ${response.status}`);
     }
 
-    await Linking.openURL(url);
+    const blob = await response.blob();
+    const base64 = await blobToBase64(blob);
+    const fileName = nomeArquivo ?? `documento_${id}.pdf`;
+    const localUri = `${FileSystem.cacheDirectory}${fileName}`;
+
+    await FileSystem.writeAsStringAsync(localUri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const canShare = await Sharing.isAvailableAsync();
+    if (canShare) {
+        await Sharing.shareAsync(localUri);
+    } else {
+        await Linking.openURL(localUri);
+    }
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            // Remove o prefixo "data:...;base64,"
+            resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
 export async function deletarDocumento(id: string): Promise<void> {

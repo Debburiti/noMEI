@@ -179,6 +179,9 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
                 navigation.navigate("DetalhesLicitacao", {
                   bidId: item.id,
                   bidTitle: item.title,
+                  agency: item.agency,
+                  value: item.value,
+                  status: item.status,
                 })
               }
             >
@@ -233,6 +236,9 @@ export function HomeScreen({ navigation }: Props): React.JSX.Element {
               navigation.navigate("DetalhesLicitacao", {
                 bidId: bid.id,
                 bidTitle: bid.title,
+                agency: bid.agency,
+                value: bid.value,
+                status: bid.status,
               })
             }
           />
