@@ -77,14 +77,14 @@
 |:---|:---:|:---|:---:|:---:|
 | Implementação do nginx / Cloudflare | [data] | Italo Vasconcelos | Full | ✅ |
 | Deploy do Back-end | 12/06 | Gustavo Lino, Débora Buriti e Italo Vasconcelos | Back | ✅ |
-| Criação de Branch Release e APK | [data] | Débora Buriti e Luis Facunde | Full | 🏗️ |
-| Deploy do Front-end | [data] | Giulliano Muniz, Luis Facunde e  Mirella Santana | Front | 🏗️ |
-| Criação do Checkbox para LGPD ao criar conta | [data] | Luis Facunde | Front | 🏗️ |
+| Criação de Branch Release e APK | [data] | Débora Buriti e Luis Facunde | Full | ✅ |
+| Deploy do Front-end | [data] | Giulliano Muniz, Luis Facunde e  Mirella Santana | Front | ✅ |
+| Criação do Checkbox para LGPD ao criar conta | [data] | Luis Facunde | Front | ✅ |
 | Apresentação - Segurança da Informação | [data] | Giulliano Muniz e Italo Vasconcelos | Full | ✅ |
 | Apresentação - Engenharia de Dados e Big Data | 13/06 | Myllena Lins | Dados | ✅ |
-| Apresentação - Desenvolvimento Mobile | [data] | Débora Buriti e Luis Facunde | Full | 🏗️ |
-| Apresentação - Projetos 5 | [data] | Luis Facunde e Pedro Fernandes | Gestão | 🏗️ |
-| Apresentação - Negócios Para Internet | [data] | Mirella Santana e Pedro Fernandes | Gestão | 🏗️ |
+| Apresentação - Desenvolvimento Mobile | [data] | Débora Buriti e Luis Facunde | Full | ✅ |
+| Apresentação - Projetos 5 | [data] | Luis Facunde e Pedro Fernandes | Gestão | ✅ |
+| Apresentação - Negócios Para Internet | [data] | Mirella Santana e Pedro Fernandes | Gestão | ✅ |
 
 ---
 
