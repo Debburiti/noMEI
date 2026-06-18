@@ -18,9 +18,12 @@ class ContratacaoRepository:
         mei_compativel: bool | None = None,
         busca: str | None = None,
         cnae: str | None = None,
+        data_min=None,
     ) -> tuple[list[dict[Any, Any]], int]:
 
         query = {}
+        if data_min is not None:
+            query["dataEncerramentoProposta"] = {"$gte": data_min}
         if busca:
             query["objetoCompra"] = {"$regex": busca, "$options": "i"}
         if uf:

@@ -124,14 +124,15 @@ Cada camada tem seu próprio README com instruções detalhadas:
 
 | Nome | Papel |
 |------|-------|
-| Débora Buriti | Líder de Backend |
-| Mirella Santana | Desenvolvedora Front-end |
-| Myllena Navarro | Engenheira de dados |
-| Pedro Fernandes | Tech lead |
-| Giulliano Muniz | Desenvolvedor Front-end  |
-| Ítalo Artur |Desenvolvedor Backend |
-| Luis Facunde | Desenvolvedor Front-end |
-| Gustavo Lino | Desenvolvedor Backend |
+| Débora Almeida Buriti da Silva | Líder de Backend |
+| Mirella Emily Bezerra Santana | Desenvolvedora Front-end |
+| Myllena Cristiane Ribeiro Navarro Lins | Engenheira de dados |
+| Pedro Fernandes Cavalcanti Ferreira | Tech lead |
+| Giulliano Lucas Muniz dos Santos | Desenvolvedor Front-end  |
+| Ítalo Artur Dantas de Vasconcelos |Desenvolvedor Backend |
+| Luis Henrique Facunde | Desenvolvedor Front-end |
+| Gustavo Lino de Araújo | Desenvolvedor Backend |
+
 
 ---
 

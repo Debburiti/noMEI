@@ -15,11 +15,12 @@ from pymongo.collection import Collection
 from pymongo.errors import BulkWriteError, ConnectionFailure
 
 from config.settings import Settings
+from src.contracts import BaseRepository
 
 logger = logging.getLogger(__name__)
 
 
-class MongoDBLoader:
+class MongoDBLoader(BaseRepository):
     """
     Carrega documentos transformados no MongoDB Atlas.
 
@@ -63,10 +64,21 @@ class MongoDBLoader:
         assert self._collection is not None
 
         self._collection.create_index("modalidadeId", background=True)
+        self._collection.create_index("modalidadeNome", background=True)
         self._collection.create_index("situacaoCompraId", background=True)
 
         self._collection.create_index(
-            [("unidadeOrgao.ufSigla", 1), ("dataAberturaProposta", -1)],
+            [("unidadeOrgao.ufSigla", 1), ("dataPublicacaoPncp", -1)],
+            background=True,
+        )
+
+        self._collection.create_index(
+            [("orgaoEntidade.razaoSocial", 1), ("dataPublicacaoPncp", -1)],
+            background=True,
+        )
+
+        self._collection.create_index(
+            [("modalidadeNome", 1), ("dataPublicacaoPncp", -1)],
             background=True,
         )
 

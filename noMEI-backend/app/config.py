@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # SMTP (optional — email features disabled if not set)
+    smtp_host: str | None = None
+    smtp_port: int = 465
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    smtp_from_name: str = "noMEI"
+
     @field_validator("mongodb_url")
     @classmethod
     def validate_mongodb_url(cls, v: str) -> str:

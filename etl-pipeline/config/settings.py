@@ -49,6 +49,16 @@ class Settings:
     MONGODB_URI: str = os.getenv("MONGODB_URI", "")
     MONGODB_DATABASE: str = os.getenv("MONGODB_DATABASE", "pncp")
     MONGODB_COLLECTION: str = os.getenv("MONGODB_COLLECTION", "contratacoes_proposta")
+    MONGODB_ORGAOS_COLLECTION: str = os.getenv("MONGODB_ORGAOS_COLLECTION", "orgaos")
+
+    # Kafka
+    KAFKA_BOOTSTRAP_SERVERS: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+    KAFKA_GROUP_ID: str = os.getenv("KAFKA_GROUP_ID", "pncp-consumer-group")
+    KAFKA_TOPIC_PNCP: str = os.getenv("KAFKA_TOPIC_PNCP", "pncp_contratacoes")
+
+    # Camada Gold local/analitica
+    GOLD_OUTPUT_PATH: str = os.getenv("GOLD_OUTPUT_PATH", "analytics_output/gold")
+    GOLD_DUCKDB_PATH: str = os.getenv("GOLD_DUCKDB_PATH", "analytics_output/gold/noMEI_gold.duckdb")
 
     def validate(self) -> None:
         """

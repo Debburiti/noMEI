@@ -13,11 +13,12 @@ from typing import Any, Generator
 import requests
 
 from config.settings import Settings
+from src.contracts import BaseExtractor
 
 logger = logging.getLogger(__name__)
 
 
-class PNCPExtractor:
+class PNCPExtractor(BaseExtractor):
     _ENDPOINT = "/v1/contratacoes/proposta"
 
     def __init__(self, settings: Settings) -> None:
@@ -253,6 +254,11 @@ class PNCPExtractor:
 
             if max_paginas and params["pagina"] >= max_paginas:
                 logger.warning("Limite de páginas atingido (%d).", max_paginas)
+                break
+
+            total_paginas = payload.get("totalPaginas")
+            if isinstance(total_paginas, int) and params["pagina"] >= total_paginas:
+                logger.info("Última página informada pela API atingida (%d).", total_paginas)
                 break
 
             params["pagina"] += 1

@@ -1,22 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-   SafeAreaView,
+   ActivityIndicator,
    ScrollView,
    StyleSheet,
    Text,
    TouchableOpacity,
    View,
+   Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Button } from "../components";
-import { colors, spacing, borderRadius, textPresets } from "../theme";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, Input } from "../components";
+import { colors, spacing } from "../theme";
+import { login } from "../services";
+import { fetchMinhaPerfil } from "../services/perfilService";
+import { useProfile } from "../context/ProfileContext";
 import type { RootStackScreenProps } from "../types";
 
 type Props = RootStackScreenProps<"Onboarding">;
 
 export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
-   function handleEnterWithEmail(): void {
-      navigation.navigate("ProfileSetup");
+   const { setCnpj } = useProfile();
+   const [email, setEmail] = useState("");
+   const [password, setPassword] = useState("");
+   const [showPassword, setShowPassword] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState("");
+
+   async function handleLogin(): Promise<void> {
+      if (!email || !password) return;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+         setError('E-mail inválido');
+         return;
+      }
+      setError("");
+      setIsLoading(true);
+      try {
+         await login(email, password);
+         const perfil = await fetchMinhaPerfil().catch(() => null);
+         if (perfil?.cnpj) {
+            setCnpj(perfil.cnpj);
+            navigation.navigate("MainTabs");
+         } else {
+            navigation.navigate("ProfileSetup", {});
+         }
+      } catch (err) {
+         setError(err instanceof Error ? err.message : "Erro ao fazer login");
+      } finally {
+         setIsLoading(false);
+      }
+   }
+
+   function handleCreateAccount(): void {
+      navigation.navigate("CadastroIdentificacao");
+   }
+
+   function handleForgotPassword(): void {
+      navigation.navigate("RecuperacaoEmail");
    }
 
    return (
@@ -26,71 +66,74 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
             showsVerticalScrollIndicator={false}
             bounces={false}
          >
-            {/* Logo */}
             <View style={styles.logoContainer}>
                <Text style={styles.logoText}>no</Text>
                <Text style={styles.logoTextBold}>MEI</Text>
             </View>
 
-            {/* Ilustração placeholder */}
-            <View style={styles.illustrationContainer}>
-               <View style={styles.illustrationCircle}>
-                  <Ionicons
-                     name="briefcase-outline"
-                     size={64}
-                     color={colors.primaryLight}
-                  />
-               </View>
-               {/* Elementos decorativos */}
-               <View style={[styles.decorDot, styles.decorDot1]} />
-               <View style={[styles.decorDot, styles.decorDot2]} />
-               <View style={[styles.decorDot, styles.decorDot3]} />
+            <View style={styles.imageContainer}>
+               <Image
+                  source={require("../../assets/noMEI.png")}
+                  style={styles.image}
+                  resizeMode="contain"
+               />
             </View>
 
-            {/* Textos */}
-            <View style={styles.textContainer}>
-               <Text style={styles.title}>Licitações sem{"\n"}complicação</Text>
-               <Text style={styles.subtitle}>
-                  Descomplique e aumente seu poder de vender para o governo com
-                  segurança e confiança.
-               </Text>
-            </View>
+            <Text style={styles.loginTitle}>Login</Text>
 
-            {/* CTAs */}
-            <View style={styles.ctaContainer}>
-               <Button
-                  label="Entrar com e-mail"
-                  onPress={handleEnterWithEmail}
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  leftIcon={
-                     <Ionicons
-                        name="mail-outline"
-                        size={20}
-                        color={colors.white}
-                     />
-                  }
+            <View style={styles.formContainer}>
+               <Input
+                  label="E-mail"
+                  placeholder="seu.email@exemplo.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+               />
+
+               <Input
+                  label="Senha"
+                  placeholder="••••••••"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  rightIcon={showPassword ? "eye-off" : "eye"}
+                  onRightIconPress={() => setShowPassword(!showPassword)}
                />
 
                <TouchableOpacity
-                  style={styles.govbrButton}
-                  onPress={handleEnterWithEmail}
-                  activeOpacity={0.8}
+                  onPress={handleForgotPassword}
+                  activeOpacity={0.7}
+                  style={styles.forgotPasswordLink}
                >
-                  <Ionicons
-                     name="shield-checkmark-outline"
-                     size={18}
-                     color={colors.dark}
-                  />
-                  <Text style={styles.govbrText}>Entrar com Gov.br</Text>
+                  <Text style={styles.forgotPasswordText}>
+                     Esqueci minha senha
+                  </Text>
                </TouchableOpacity>
             </View>
 
-            {/* Link informativo */}
-            <TouchableOpacity style={styles.infoLink} activeOpacity={0.7}>
-               <Text style={styles.infoLinkText}>O que é o noMEI?</Text>
-            </TouchableOpacity>
+            {error ? (
+               <Text style={styles.errorText}>{error}</Text>
+            ) : null}
+
+            <View style={styles.buttonContainer}>
+               <Button
+                  label={isLoading ? "Entrando..." : "Entrar"}
+                  onPress={handleLogin}
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  disabled={isLoading || !email || !password}
+               />
+
+               <Button
+                  label="Criar uma conta"
+                  onPress={handleCreateAccount}
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+               />
+            </View>
          </ScrollView>
       </SafeAreaView>
    );
@@ -99,118 +142,73 @@ export function OnboardingScreen({ navigation }: Props): React.JSX.Element {
 const styles = StyleSheet.create({
    safeArea: {
       flex: 1,
-      backgroundColor: colors.dark,
+      backgroundColor: colors.white,
    },
    scrollContent: {
-      flexGrow: 1,
       paddingHorizontal: spacing[6],
-      paddingTop: spacing[8],
+      paddingTop: spacing[4],
       paddingBottom: spacing[8],
       alignItems: "center",
    },
    logoContainer: {
       flexDirection: "row",
       alignItems: "baseline",
-      alignSelf: "flex-start",
-      marginBottom: spacing[8],
+      alignSelf: "center",
+      marginBottom: spacing[4],
    },
    logoText: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: "400",
-      color: colors.white,
+      color: colors.dark,
       letterSpacing: -0.5,
    },
    logoTextBold: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: "800",
-      color: colors.primaryLight,
+      color: colors.primary,
       letterSpacing: -0.5,
    },
-   illustrationContainer: {
-      width: 220,
-      height: 220,
-      marginBottom: spacing[8],
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-   },
-   illustrationCircle: {
-      width: 160,
-      height: 160,
-      borderRadius: borderRadius.full,
-      backgroundColor: "rgba(45, 91, 227, 0.25)",
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: 2,
-      borderColor: "rgba(45, 91, 227, 0.4)",
-   },
-   decorDot: {
-      position: "absolute",
-      borderRadius: borderRadius.full,
-      backgroundColor: colors.primary,
-      opacity: 0.6,
-   },
-   decorDot1: {
-      width: 12,
-      height: 12,
-      top: 20,
-      right: 30,
-   },
-   decorDot2: {
-      width: 8,
-      height: 8,
-      bottom: 30,
-      left: 20,
-      backgroundColor: colors.warning,
-   },
-   decorDot3: {
-      width: 16,
-      height: 16,
-      top: 40,
-      left: 10,
-      opacity: 0.3,
-   },
-   textContainer: {
-      alignItems: "center",
-      marginBottom: spacing[8],
-      gap: spacing[3],
-   },
-   title: {
-      ...textPresets.h2,
-      color: colors.white,
-      textAlign: "center",
-   },
-   subtitle: {
-      ...textPresets.bodyLg,
-      color: "rgba(255,255,255,0.7)",
-      textAlign: "center",
-      lineHeight: 24,
-   },
-   ctaContainer: {
+   imageContainer: {
       width: "100%",
-      gap: spacing[3],
+      height: 200,
+      marginBottom: spacing[4],
+      alignItems: "center",
+      justifyContent: "center",
+   },
+   image: {
+      width: "80%",
+      height: "100%",
+      resizeMode: "contain",
+   },
+   loginTitle: {
+      fontSize: 32,
+      fontWeight: "600",
+      color: colors.dark,
+      marginBottom: spacing[6],
+      textAlign: "center",
+   },
+   formContainer: {
+      width: "100%",
+      gap: spacing[4],
       marginBottom: spacing[6],
    },
-   govbrButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: spacing[2],
-      backgroundColor: colors.white,
-      borderRadius: borderRadius.md,
-      paddingVertical: spacing[4],
-      minHeight: 56,
+   forgotPasswordLink: {
+      alignItems: "flex-end",
+      paddingTop: spacing[1],
    },
-   govbrText: {
-      ...textPresets.labelLg,
-      color: colors.dark,
+   forgotPasswordText: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.primary,
    },
-   infoLink: {
-      paddingVertical: spacing[2],
+   buttonContainer: {
+      width: "100%",
+      gap: spacing[3],
    },
-   infoLinkText: {
-      ...textPresets.bodyMd,
-      color: "rgba(255,255,255,0.5)",
-      textDecorationLine: "underline",
+   errorText: {
+      color: colors.error ?? '#dc2626',
+      fontSize: 14,
+      textAlign: "center",
+      marginBottom: spacing[3],
    },
 });

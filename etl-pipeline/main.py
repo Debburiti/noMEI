@@ -13,8 +13,7 @@ import sys
 from datetime import datetime
 
 from config.settings import Settings
-from src.pipeline import ETLPipeline
-
+from src.processing.pipeline import ETLPipeline
 
 def _configure_logging() -> None:
     """

@@ -6,8 +6,13 @@ retornados pela API, preparando-os para persistência no MongoDB.
 """
 
 import logging
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, timezone
 from typing import Any
+
+from src.contracts import BaseTransformer
+from src.security.lgpd import remove_sensitive_fields
+from src.security.anonymizer import pseudonymize_field
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +23,12 @@ _DATE_FIELDS = (
     "dataEncerramentoProposta",
     "dataPublicacaoPncp",
     "dataAtualizacaoGlobal",
+)
+
+_NUMERIC_FIELDS = (
+    "valorTotalEstimado",
+    "valorTotalHomologado",
+    "valorTotalSigiloso",
 )
 
 _DATE_FORMATS = (
@@ -43,6 +54,34 @@ def _parse_date(value: str | None) -> datetime | None:
     return None
 
 
+def _parse_decimal(value: Any) -> float | None:
+    """Converte valores monetarios da API para float ou None."""
+    if value is None or value == "":
+        return None
+
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    if isinstance(value, str):
+        raw_value = value.strip()
+        normalized = (
+            raw_value.replace(".", "").replace(",", ".")
+            if "," in raw_value
+            else raw_value
+        )
+
+        try:
+            return float(Decimal(normalized))
+        except (InvalidOperation, ValueError):
+            logger.warning("Valor numerico nao reconhecido: '%s'", value)
+            return None
+
+    return None
+
+
 def _clean_dict(data: dict[str, Any]) -> dict[str, Any]:
     """
     Remove valores inválidos do dicionário:
@@ -57,7 +96,7 @@ def _clean_dict(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-class PNCPTransformer:
+class PNCPTransformer(BaseTransformer):
     """
     Transforma registros brutos da API do PNCP em documentos limpos para o MongoDB.
 
@@ -87,6 +126,11 @@ class PNCPTransformer:
             if field in doc:
                 doc[field] = _parse_date(doc[field])
 
+        # 1.1 Converter valores monetarios
+        for field in _NUMERIC_FIELDS:
+            if field in doc:
+                doc[field] = _parse_decimal(doc[field])
+
         # 2. Normalização de texto
         text_fields = (
             "objetoCompra",
@@ -107,9 +151,22 @@ class PNCPTransformer:
                 .upper()
             )
 
+        unidade = doc.get("unidadeOrgao")
+        if isinstance(unidade, dict) and isinstance(unidade.get("ufSigla"), str):
+            unidade["ufSigla"] = unidade["ufSigla"].strip().upper()
+
         # 4. Limpeza geral (ANTES da regra de negócio)
         doc = _clean_dict(doc)
-
+        
+        # LGPD - remoção de campos sensíveis
+        doc = remove_sensitive_fields(doc)
+        
+        # LGPD - pseudonimização
+        if doc.get("cnpj"):
+            doc = pseudonymize_field(
+                doc,
+                "cnpj"
+            )
         # 5. Regra de negócio: MEI compatível
         valor = doc.get("valorTotalEstimado")
 
@@ -126,6 +183,18 @@ class PNCPTransformer:
 
         # 7. Metadata ETL
         doc["_etl_ingestao_em"] = datetime.now(tz=timezone.utc)
+        doc["_etl_fonte"] = "PNCP"
+        doc["_etl_camada"] = "silver"
+
+        doc["_consulta"] = {
+            "orgao": (orgao or {}).get("razaoSocial") if isinstance(orgao, dict) else None,
+            "modalidade": doc.get("modalidadeNome"),
+            "uf": (unidade or {}).get("ufSigla") if isinstance(unidade, dict) else None,
+            "municipio": (unidade or {}).get("municipioNome") if isinstance(unidade, dict) else None,
+            "situacao": doc.get("situacaoCompraNome"),
+            "data_publicacao": doc.get("dataPublicacaoPncp"),
+            "valor_estimado": doc.get("valorTotalEstimado"),
+        }
 
         return doc
 

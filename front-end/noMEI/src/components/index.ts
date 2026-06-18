@@ -4,6 +4,9 @@ export type { ButtonProps } from "./Button";
 export { Input } from "./Input";
 export type { InputProps } from "./Input";
 
+export { ValidationItem } from "./ValidationItem";
+export type { ValidationItemProps } from "./ValidationItem";
+
 export { BidCard } from "./Card";
 export type { BidCardProps } from "./Card";
 
